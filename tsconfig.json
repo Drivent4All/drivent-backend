@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "target": "es2020",
-    "module": "commonjs",
+    "target":"ES2020",
+    "module": "CommonJS",
     "outDir": "dist",
     "noImplicitAny": true,
     "emitDecoratorMetadata": true,
@@ -11,10 +11,11 @@
       "src",
       "tests"
     ],
-    "baseUrl": "src",
+    "baseUrl": "src", 
+    "moduleResolution": "node",
     "paths": {
       "@/*": [
-        "*"
+        "*",
       ]
     },
     "plugins": [
@@ -22,6 +23,9 @@
         "transform": "typescript-transform-paths"
       }
     ]
+  },
+  "ts-node": {
+    "esm": true
   },
   "include": [
     "src",
