@@ -16,7 +16,8 @@ import {
   ticketsRouter,
   paymentsRouter,
   hotelsRouter,
-  bookingRouter
+  bookingRouter,
+  activiteRouter
 } from "@/routers";
 
 const app = express();
@@ -32,6 +33,7 @@ app
   .use("/payments", paymentsRouter)
   .use("/hotels", hotelsRouter)
   .use("/booking", bookingRouter)
+  .use("/activite", activiteRouter)
   .use(handleApplicationErrors);
 
 export function init(): Promise<Express> {
@@ -44,3 +46,8 @@ export async function close(): Promise<void> {
 }
 
 export default app;
+// Footer
+// © 2022 GitHub, Inc.
+// Footer navigation
+// Terms
+// Privacy

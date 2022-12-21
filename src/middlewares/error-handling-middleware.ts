@@ -33,10 +33,24 @@ export function handleApplicationErrors(err: ApplicationError | Error, _req: Req
     });
   }
 
-  /* eslint-disable-next-line no-console */
-  console.error(err.name);
-  res.status(httpStatus.INTERNAL_SERVER_ERROR).send({
-    error: "InternalServerError",
-    message: "Internal Server Error",
-  });
+  if (err.name === "CannotActivitieError") {
+    return res.status(httpStatus.UNAUTHORIZED).send({
+      message: err.message,
+    });
+  }
+
+  if (err.name === "CannotNoActivitieError") {
+    return res.status(httpStatus.UNAUTHORIZED).send({
+      message: err.message,
+    });
+  }
 }
+
+/* eslint-disable-next-line no-console */
+// console.error(err.name);
+// res.status(httpStatus.INTERNAL_SERVER_ERROR).send({
+//   error: "InternalServerError",
+//   message: "Internal Server Error",
+// });
+// }
+// 
