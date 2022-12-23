@@ -1,14 +1,14 @@
 import { Router } from "express";
 import { authenticateToken, validateBody } from "@/middlewares";
-import { getUsersActivites, getDateActivities } from "@/controllers";
-import { createActivitesSchema } from "@/schemas";
+import { getUsersActivites, getDateActivities, subscribeToAnActivite } from "@/controllers";
+import { getActivitiesSchema } from "@/schemas";
 
 const activiteRouter = Router();
 
 activiteRouter
   .all("/*", authenticateToken)
   .get("/", getUsersActivites)
-  .get("/date", validateBody(createActivitesSchema), getDateActivities);
-// .post("", createTicket);
+  .get("/date", validateBody(getActivitiesSchema), getDateActivities)
+  .post("/:id", subscribeToAnActivite);
 
 export { activiteRouter };

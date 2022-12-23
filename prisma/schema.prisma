@@ -8,14 +8,15 @@ datasource db {
 }
 
 model User {
-  id         Int         @id @default(autoincrement())
-  email      String      @unique @db.VarChar(255)
-  password   String      @db.VarChar(255)
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
-  Booking    Booking[]
-  Enrollment Enrollment?
-  Session    Session[]
+  id              Int               @id @default(autoincrement())
+  email           String            @unique @db.VarChar(255)
+  password        String            @db.VarChar(255)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  Booking         Booking[]
+  Enrollment      Enrollment?
+  Session         Session[]
+  BookingActivite BookingActivite[]
 }
 
 model Session {
@@ -133,16 +134,26 @@ model Booking {
 }
 
 model Activite {
-  id           Int        @id @default(autoincrement())
-  name         String
-  place        String
-  capacity     Int
-  ticketTypeId Int
-  createdAt    DateTime   @default(now())
-  endsAt       DateTime
-  startsAt     DateTime
-  updatedAt    DateTime   @updatedAt
-  TicketType   TicketType @relation(fields: [ticketTypeId], references: [id])
+  id              Int               @id @default(autoincrement())
+  name            String
+  place           String
+  capacity        Int
+  ticketTypeId    Int
+  createdAt       DateTime          @default(now())
+  endsAt          DateTime
+  startsAt        DateTime
+  updatedAt       DateTime          @updatedAt
+  TicketType      TicketType        @relation(fields: [ticketTypeId], references: [id])
+  BookingActivite BookingActivite[]
+}
+
+model BookingActivite {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  activiteId Int
+  Activite   Activite @relation(fields: [activiteId], references: [id])
+  createdAt  DateTime @default(now())
+  User       User     @relation(fields: [userId], references: [id])
 }
 
 enum TicketStatus {
