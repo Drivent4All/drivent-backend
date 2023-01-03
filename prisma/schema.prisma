@@ -140,8 +140,9 @@ model Activite {
   capacity        Int
   ticketTypeId    Int
   createdAt       DateTime          @default(now())
-  endsAt          DateTime
-  startsAt        DateTime
+  date            DateTime          @db.Date
+  endsAt          String
+  startsAt        String
   updatedAt       DateTime          @updatedAt
   TicketType      TicketType        @relation(fields: [ticketTypeId], references: [id])
   BookingActivite BookingActivite[]
