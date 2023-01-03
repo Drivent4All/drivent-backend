@@ -16,6 +16,17 @@ async function main() {
     });
   }
 
+  let activite = await prisma.activite.create({
+    data: {
+      name: "Minecraft: criando pc ideal",
+      place: "Auditório Principal",
+      capacity: 12,
+      startsAt: dayjs().toDate(),
+      ticketTypeId: 728,
+      endsAt: dayjs().add(2, "hours").toDate()
+    }
+  })
+
   console.log({ event });
 }
 
