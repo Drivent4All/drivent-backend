@@ -1,4 +1,4 @@
-import { cannotActiviteTicketError, cannotActiviteDoesntMatchError, cannotActiviteOverCapacityError, cannotActiviteDateError, cannotActiviteBookingError, cannotActivitePaymemtError, cannotActiviteOnlineEventError, cannotActiviteEnrrolmentError, notFoundError } from "@/errors";
+import { cannotActiviteTicketError, cannotActiviteDoesntMatchError, cannotActiviteOverCapacityError, cannotActiviteDateError, cannotActiviteBookingError, cannotActivitePaymemtError, cannotActiviteOnlineEventError, cannotActiviteEnrrolmentError, noActivitiesError, notFoundError } from "@/errors";
 import roomRepository from "@/repositories/room-repository";
 import bookingRepository from "@/repositories/booking-repository";
 import enrollmentRepository from "@/repositories/enrollment-repository";
@@ -35,6 +35,18 @@ async function confirmationStage(userId: number) {
   return ticket.ticketTypeId;
 }
 
+async function getAcitivitiesDates(userId: number) {
+  const ticketTypeId = await activitieService.confirmationStage(Number(userId));
+
+  const dates = await activiteRepository.getAcitivitiesDates(ticketTypeId);
+  for (const date of dates) {
+    const newDate = new Date(dayjs(date.date).format("YYYY-MM-DD"));
+    date.date = newDate;
+  }
+
+  return dates;
+}
+
 async function getActivites(userId: number) {
   const ticketTypeId = await activitieService.confirmationStage(Number(userId));
 
@@ -43,25 +55,23 @@ async function getActivites(userId: number) {
   return activites;
 }
 
-async function getActivitiesByDay(userId: number, day: number, month: number, year: number) {
-  const validDate = await dateValidation(day, month, year);
-
+async function getActivitiesByDay(userId: number, date: string) {
   const ticketTypeId = await confirmationStage(userId);
+  const validDate = await dateValidation(date);
+  
+  if (!validDate) {
+    throw cannotActiviteDateError();
+  }
 
-  const activities = await activiteRepository.findActivites(ticketTypeId, userId);
+  const newDate = new Date(date);
 
-  const activitiesByDay: Activite[] = activities.filter(({ startsAt }) => {
-    // const date = dayjs(startsAt).add(1, 'day').format("YYYY-MM-DD");
-    const date = dayjs(startsAt).format("YYYY-MM-DD");
+  const activities = await activiteRepository.findActivitesByDate(ticketTypeId, userId, newDate);
 
-    if (date === validDate) {
-      return true;
-    }
-    else {
-      return false;
-    }
-  });
-  return activitiesByDay;
+  if (activities.length === 0) {
+    throw noActivitiesError();
+  }
+
+  return activities;
 }
 
 async function subscribeByIdActivite(userId: number, id: number) {
@@ -90,15 +100,9 @@ async function subscribeByIdActivite(userId: number, id: number) {
   return updatedActivite.BookingActivite;
 }
 
-async function dateValidation(day: number, month: number, year: number) {
-  console.log("antes de transformar em data", day, month);
-  const date = dayjs(`${month}-${day}-${year}`).format("YYYY-MM-DD");
-  const splitDate = date.split("-");
-  const dayOfDate = splitDate[2];
-  if (day !== Number(dayOfDate)) {
-    throw cannotActiviteDateError();
-  }
-  return date;
+async function dateValidation(date: string) {
+  const newDate = new Date(date);
+  return !isNaN(newDate.getTime());
 }
 
 const activitieService = {
@@ -106,7 +110,8 @@ const activitieService = {
   getActivites,
   dateValidation,
   getActivitiesByDay,
-  subscribeByIdActivite
+  subscribeByIdActivite,
+  getAcitivitiesDates
 };
 
 export default activitieService;

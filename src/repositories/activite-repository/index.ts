@@ -1,6 +1,15 @@
 import { prisma } from "@/config";
 import { Activite } from "@prisma/client";
 
+async function getAcitivitiesDates(ticketTypeId: number) {
+  return prisma.activite.groupBy({
+    by: ["date"],
+    where: {
+      ticketTypeId
+    },
+  });
+}
+
 async function findActivites(ticketTypeId: number, userId: number) {
   return prisma.activite.findMany({
     where: {
@@ -12,7 +21,23 @@ async function findActivites(ticketTypeId: number, userId: number) {
           userId
         }
       }
-    }
+    },
+  });
+}
+
+async function findActivitesByDate(ticketTypeId: number, userId: number, date: Date) {
+  return prisma.activite.findMany({
+    where: {
+      ticketTypeId,
+      date,
+    },
+    include: {
+      BookingActivite: {
+        where: {
+          userId
+        }
+      }
+    },
   });
 }
 
@@ -44,7 +69,9 @@ const activiteRepository = {
   findActivites,
   findActivitesById,
   // subscribeActivities,
-  updateActivities
+  updateActivities,
+  getAcitivitiesDates,
+  findActivitesByDate
 };
 
 export default activiteRepository;
