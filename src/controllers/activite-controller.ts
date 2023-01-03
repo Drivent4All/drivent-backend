@@ -4,7 +4,8 @@ import httpStatus from "http-status";
 import activitieService from "@/services/activite-service";
 
 export async function getUsersActivites(req: AuthenticatedRequest, res: Response) {
-  const { userId } = req;
+  //const { userId } = req;
+  const userId = 1;
 
   try {
     const activites = await activitieService.getActivites(Number(userId));
@@ -33,19 +34,37 @@ export async function getUsersActivites(req: AuthenticatedRequest, res: Response
   }
 }
 
+export async function getActivitiesDates(req: AuthenticatedRequest, res: Response) {
+  //const { userId } = req;
+  const userId = 1;
+   
+  try {
+    const dates = await activitieService.getAcitivitiesDates(userId);
+    return res.status(httpStatus.OK).send(dates);
+  } catch (error) {    
+    return res.status(httpStatus.BAD_REQUEST).send(error.message);    
+  }
+}
+
 export async function getDateActivities(req: AuthenticatedRequest, res: Response) {
-  const { userId } = req;
-  const { day, month, year } = req.body;
+  //const { userId } = req;
+  const userId = 1;
+  const date = req.params.date;
 
   try {
-    const activitesDay = await activitieService.getActivitiesByDay(Number(userId), day, month, year);
+    const activitesDay = await activitieService.getActivitiesByDay(Number(userId), date);
 
     return res.status(httpStatus.OK).send(activitesDay);
   } catch (error) {
     if (error.name === "CannotPaymemtError") {
       return res.status(httpStatus.PAYMENT_REQUIRED).send(error.message);
     }
-
+    if (error.name === "CannotActiviteError") {
+      return res.status(httpStatus.BAD_REQUEST).send(error.message);
+    }
+    if (error.name === "NoActivitiesError") {
+      return res.status(httpStatus.BAD_REQUEST).send(error.message);
+    }
     if (error.name === "CannotActiviteDateError") {
       return res.status(httpStatus.BAD_REQUEST).send(error.message);
     }
