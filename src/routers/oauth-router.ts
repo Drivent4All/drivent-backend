@@ -4,6 +4,6 @@ import { signInWithGithub } from "@/controllers/oauth-controller";
 const oauthRouter = Router();
 
 oauthRouter
-  .get("/", signInWithGithub);
+  .post("/", signInWithGithub);
 
 export { oauthRouter };
