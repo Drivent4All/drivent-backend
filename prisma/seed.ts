@@ -17,6 +17,23 @@ async function main() {
   }
 
   console.log({ event });
+
+  let activity = await prisma.activite.findFirst();
+  if (!activity) {
+    const date = new Date("2022-12-24")
+    const activity = await prisma.activite.create({
+      data: {
+        name: "Minecraft",
+        place: "Auditório",
+        capacity: 15,
+        ticketTypeId: 4,
+        date: date,
+        endsAt: "10h00",
+        startsAt: "09h00",
+      },
+    });
+  }
+  console.log({ activity });
 }
 
 main()
