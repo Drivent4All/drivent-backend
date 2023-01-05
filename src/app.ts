@@ -34,7 +34,7 @@ app
   .use("/payments", paymentsRouter)
   .use("/hotels", hotelsRouter)
   .use("/booking", bookingRouter)
-  .use("/activite", activiteRouter)
+  .use("/activities", activiteRouter)
   .use("/room", roomsRouter)
   .use(handleApplicationErrors);
 
