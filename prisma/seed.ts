@@ -15,15 +15,35 @@ async function main() {
       },
     });
   }
-
+  const ticketTypes = await prisma.ticketType.createMany({
+    data: [{
+      name: ' type 1',
+      price: 30000,
+      isRemote: true,
+      includesHotel: false
+    },
+    {
+      name: ' type 2',
+      price: 60000,
+      isRemote: false,
+      includesHotel: false
+    },
+    {
+      name: ' type 3',
+      price: 100000,
+      isRemote: false,
+      includesHotel: true
+    }]
+  })
   let activite = await prisma.activite.create({
     data: {
       name: "Minecraft: criando pc ideal",
       place: "Auditório Principal",
       capacity: 12,
-      startsAt: dayjs().toDate(),
-      ticketTypeId: 728,
-      endsAt: dayjs().add(2, "hours").toDate()
+      startsAt: '09:00',
+      endsAt: '11:00',
+      date: dayjs('2022-11-30'),
+      ticketTypeId: ticketTypes[1],
     }
   })
 
