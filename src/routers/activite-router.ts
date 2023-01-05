@@ -4,7 +4,6 @@ import { getUsersActivites, getDateActivities, subscribeToAnActivite, getActivit
 import { getActivitiesSchema } from "@/schemas";
 
 const activiteRouter = Router();
-
 activiteRouter
   .all("/*", authenticateToken)
   .get("/", getActivitiesDates)

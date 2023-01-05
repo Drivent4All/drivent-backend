@@ -52,7 +52,8 @@ async function findActivitesById(id: number, userId: number) {
           userId
         }
       },
-    } });
+    }
+  });
 }
 async function updateActivities(id: number, capacity: number) {
   return prisma.activite.update({
