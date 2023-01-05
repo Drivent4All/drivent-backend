@@ -42,7 +42,7 @@ module.exports = {
       {
         "type": "config",
         "pattern": "src/config",
-      } 
+      }
     ]
   },
   rules: {

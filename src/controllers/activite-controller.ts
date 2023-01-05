@@ -33,19 +33,35 @@ export async function getUsersActivites(req: AuthenticatedRequest, res: Response
   }
 }
 
+export async function getActivitiesDates(req: AuthenticatedRequest, res: Response) {
+  const { userId } = req;
+   
+  try {
+    const dates = await activitieService.getAcitivitiesDates(userId);
+    return res.status(httpStatus.OK).send(dates);
+  } catch (error) {    
+    return res.status(httpStatus.BAD_REQUEST).send(error.message);    
+  }
+}
+
 export async function getDateActivities(req: AuthenticatedRequest, res: Response) {
   const { userId } = req;
-  const { day, month, year } = req.body;
+  const date = req.params.date;
 
   try {
-    const activitesDay = await activitieService.getActivitiesByDay(Number(userId), day, month, year);
+    const activitesDay = await activitieService.getActivitiesByDay(Number(userId), date);
 
     return res.status(httpStatus.OK).send(activitesDay);
   } catch (error) {
     if (error.name === "CannotPaymemtError") {
       return res.status(httpStatus.PAYMENT_REQUIRED).send(error.message);
     }
-
+    if (error.name === "CannotActiviteError") {
+      return res.status(httpStatus.BAD_REQUEST).send(error.message);
+    }
+    if (error.name === "NoActivitiesError") {
+      return res.status(httpStatus.BAD_REQUEST).send(error.message);
+    }
     if (error.name === "CannotActiviteDateError") {
       return res.status(httpStatus.BAD_REQUEST).send(error.message);
     }
@@ -67,6 +83,7 @@ export async function getDateActivities(req: AuthenticatedRequest, res: Response
 export async function subscribeToAnActivite(req: AuthenticatedRequest, res: Response) {
   const { userId } = req;
   const id = Number(req.params.id);
+  console.log("ola");
 
   try {
     const subscribe = await activitieService.subscribeByIdActivite(Number(userId), id);

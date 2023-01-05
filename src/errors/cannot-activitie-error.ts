@@ -55,3 +55,10 @@ export function cannotActiviteDoesntMatchError(): ApplicationError {
     message: "Sorry, something went wrong.",
   };
 }
+
+export function noActivitiesError(): ApplicationError {
+  return {
+    name: "NoActivitiesError",
+    message: "Sorry, there are no activities listed for that day.",
+  };
+}
