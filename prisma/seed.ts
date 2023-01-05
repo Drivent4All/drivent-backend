@@ -15,37 +15,32 @@ async function main() {
       },
     });
   }
-  const ticketTypes = await prisma.ticketType.createMany({
-    data: [{
-      name: ' type 1',
-      price: 30000,
-      isRemote: true,
-      includesHotel: false
-    },
-    {
-      name: ' type 2',
-      price: 60000,
-      isRemote: false,
-      includesHotel: false
-    },
-    {
-      name: ' type 3',
-      price: 100000,
-      isRemote: false,
-      includesHotel: true
-    }]
-  })
-  let activite = await prisma.activite.create({
-    data: {
-      name: "Minecraft: criando pc ideal",
-      place: "Auditório Principal",
-      capacity: 12,
-      startsAt: '09:00',
-      endsAt: '11:00',
-      date: dayjs('2022-11-30'),
-      ticketTypeId: ticketTypes[1],
-    }
-  })
+  let ticketTypeExists = await prisma.ticketType.findFirst();
+  let ticketType;
+  if (!ticketTypeExists) {
+    ticketType = await prisma.ticketType.create({
+      data: {
+        name: ' type 3',
+        price: 100000,
+        isRemote: false,
+        includesHotel: true
+      }
+    })
+    await prisma.ticketType.createMany({
+      data: [{
+        name: ' type 1',
+        price: 30000,
+        isRemote: true,
+        includesHotel: false
+      },
+      {
+        name: ' type 2',
+        price: 60000,
+        isRemote: false,
+        includesHotel: false
+      }]
+    })
+  }
 
   console.log({ event });
 
@@ -54,17 +49,18 @@ async function main() {
     const date = new Date("2022-12-24")
     const activity = await prisma.activite.create({
       data: {
-        name: "Minecraft",
-        place: "Auditório",
+        name: "Minecraft: montando o PC ideal",
+        place: "Auditório Principal",
         capacity: 15,
-        ticketTypeId: 4,
+        ticketTypeId: ticketType.id,
         date: date,
         endsAt: "10h00",
         startsAt: "09h00",
       },
     });
+    console.log({ activity });
   }
-  console.log({ activity });
+
 }
 
 main()
