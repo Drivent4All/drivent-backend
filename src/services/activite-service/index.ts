@@ -38,11 +38,7 @@ async function confirmationStage(userId: number) {
 async function getAcitivitiesDates(userId: number) {
   const ticketTypeId = await activitieService.confirmationStage(Number(userId));
 
-  const dates = await activiteRepository.getAcitivitiesDates(ticketTypeId);
-  for (const date of dates) {
-    const newDate = new Date(dayjs(date.date).format("YYYY-MM-DD"));
-    date.date = newDate;
-  }
+  const dates = await activiteRepository.getAcitivitiesDates(ticketTypeId);  
 
   return dates;
 }

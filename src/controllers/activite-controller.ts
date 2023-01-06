@@ -5,7 +5,6 @@ import activitieService from "@/services/activite-service";
 
 export async function getUsersActivites(req: AuthenticatedRequest, res: Response) {
   const { userId } = req;
-  // const userId = 1;
 
   try {
     const activites = await activitieService.getActivites(Number(userId));
@@ -36,7 +35,6 @@ export async function getUsersActivites(req: AuthenticatedRequest, res: Response
 
 export async function getActivitiesDates(req: AuthenticatedRequest, res: Response) {
   const { userId } = req;
-  // const userId = 1;
    
   try {
     const dates = await activitieService.getAcitivitiesDates(userId);
@@ -48,7 +46,6 @@ export async function getActivitiesDates(req: AuthenticatedRequest, res: Respons
 
 export async function getDateActivities(req: AuthenticatedRequest, res: Response) {
   const { userId } = req;
-  // const userId = 1;
   const date = req.params.date;
 
   try {
@@ -86,6 +83,7 @@ export async function getDateActivities(req: AuthenticatedRequest, res: Response
 export async function subscribeToAnActivite(req: AuthenticatedRequest, res: Response) {
   const { userId } = req;
   const id = Number(req.params.id);
+  console.log("ola");
 
   try {
     const subscribe = await activitieService.subscribeByIdActivite(Number(userId), id);
