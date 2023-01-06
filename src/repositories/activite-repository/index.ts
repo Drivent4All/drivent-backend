@@ -26,6 +26,7 @@ async function findActivites(ticketTypeId: number, userId: number) {
 }
 
 async function findActivitesByDate(ticketTypeId: number, userId: number, date: Date) {
+  console.log("date do repository", date)
   return prisma.activite.findMany({
     where: {
       ticketTypeId,

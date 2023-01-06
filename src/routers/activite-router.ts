@@ -6,8 +6,9 @@ import { getActivitiesSchema } from "@/schemas";
 const activiteRouter = Router();
 
 activiteRouter
-  //.all("/*", authenticateToken)
-  .get("/", getActivitiesDates)
+  .all("/*", authenticateToken)
+  // .get("/", getActivitiesDates)
+  .get("/",getUsersActivites)
   .get("/:date", getDateActivities)
   .post("/:id", subscribeToAnActivite);
 

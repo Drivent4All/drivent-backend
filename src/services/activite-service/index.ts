@@ -56,14 +56,14 @@ async function getActivites(userId: number) {
 }
 
 async function getActivitiesByDay(userId: number, date: string) {
-  const ticketTypeId = await confirmationStage(userId);
-  const validDate = await dateValidation(date);
-  
-  if (!validDate) {
-    throw cannotActiviteDateError();
-  }
 
   const newDate = new Date(date);
+
+  const ticketTypeId = await confirmationStage(userId);
+
+  if (!dayjs(newDate.getTime()).isValid()) {
+    throw cannotActiviteDateError();
+  }
 
   const activities = await activiteRepository.findActivitesByDate(ticketTypeId, userId, newDate);
 
@@ -83,7 +83,6 @@ async function subscribeByIdActivite(userId: number, id: number) {
     throw notFoundError();
   }
   if (ticketTypeId !== activiteSelected.ticketTypeId) {
-    console.log("entrou?");
     throw cannotActiviteDoesntMatchError();
   }
   
@@ -100,15 +99,10 @@ async function subscribeByIdActivite(userId: number, id: number) {
   return updatedActivite.BookingActivite;
 }
 
-async function dateValidation(date: string) {
-  const newDate = new Date(date);
-  return !isNaN(newDate.getTime());
-}
 
 const activitieService = {
   confirmationStage,
   getActivites,
-  dateValidation,
   getActivitiesByDay,
   subscribeByIdActivite,
   getAcitivitiesDates
