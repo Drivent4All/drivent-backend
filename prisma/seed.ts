@@ -3,6 +3,14 @@ import dayjs from "dayjs";
 const prisma = new PrismaClient();
 
 async function main() {
+
+  await prisma.event.deleteMany({});
+  await prisma.payment.deleteMany({});
+  await prisma.ticket.deleteMany({});
+  await prisma.activite.deleteMany({});
+  await prisma.ticketType.deleteMany({});
+  await prisma.hotel.deleteMany({});
+
   let event = await prisma.event.findFirst();
   if (!event) {
     event = await prisma.event.create({
@@ -92,6 +100,41 @@ async function main() {
     })
     console.log({ activity });
   }
+  const hotel1 = await prisma.hotel.create({
+    data: 
+      {
+        name: 'Lunar Woodland Hotel & Spa',
+        image: 'https://media-cdn.tripadvisor.com/media/photo-s/1c/d3/c3/42/entrance.jpg',
+      }
+  })
+  const hotel2 = await prisma.hotel.create({
+    data: 
+    {
+      name: 'Modest Castle Resort',
+      image: 'https://media-cdn.tripadvisor.com/media/photo-s/26/68/90/e8/exterior.jpg',
+    }
+  })
+
+  await prisma.room.createMany({
+    data: [
+      {
+        name: 'Single',
+        capacity: 2,
+        hotelId: hotel1.id
+      },
+      {
+        name: 'Double',
+        capacity: 4,
+        hotelId: hotel1.id
+      }
+      ,{
+        name: 'Single',
+        capacity: 2,
+        hotelId: hotel2.id
+      }
+    ]
+  })
+ 
 
 }
 
