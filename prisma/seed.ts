@@ -7,8 +7,11 @@ async function main() {
   await prisma.event.deleteMany({});
   await prisma.payment.deleteMany({});
   await prisma.ticket.deleteMany({});
+  await prisma.bookingActivite.deleteMany({});
   await prisma.activite.deleteMany({});
   await prisma.ticketType.deleteMany({});
+  await prisma.booking.deleteMany({});
+  await prisma.room.deleteMany({});
   await prisma.hotel.deleteMany({});
 
   let event = await prisma.event.findFirst();

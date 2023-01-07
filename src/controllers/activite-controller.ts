@@ -84,7 +84,6 @@ export async function subscribeToAnActivite(req: AuthenticatedRequest, res: Resp
   const { userId } = req;
   const id = Number(req.params.id);
   console.log("ola");
-
   try {
     const subscribe = await activitieService.subscribeByIdActivite(Number(userId), id);
 

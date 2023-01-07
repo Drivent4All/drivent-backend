@@ -79,7 +79,6 @@ async function subscribeByIdActivite(userId: number, id: number) {
     throw notFoundError();
   }
   if (ticketTypeId !== activiteSelected.ticketTypeId) {
-    console.log("entrou?");
     throw cannotActiviteDoesntMatchError();
   }
   
