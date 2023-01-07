@@ -8,6 +8,7 @@ export function createActivitie(ticketTypeId: number) {
       startsAt: faker.date.future().toISOString(),
       endsAt: faker.date.future().toISOString(),
       place: faker.name.jobArea(),
+      date: faker.date.future().toISOString(),
       capacity: faker.datatype.number({ min: 0 }),
       ticketTypeId,
     }
@@ -22,6 +23,7 @@ export function createActivitieCapacityZero(ticketTypeId: number) {
       startsAt: faker.date.future().toISOString(),
       endsAt: faker.date.future().toISOString(),
       place: faker.name.jobArea(),
+      date: faker.date.future().toISOString(),
       capacity: 0,
       ticketTypeId,
     }
@@ -29,12 +31,13 @@ export function createActivitieCapacityZero(ticketTypeId: number) {
   });
 }
 
-export function createActiviteWithDate(ticketTypeId: number, startsAt: string) {
+export function createActiviteWithDate(ticketTypeId: number, date: string) {
   console.log("entrou factory");
   return prisma.activite.create({
     data: {
       name: faker.name.findName(),
-      startsAt,
+      startsAt:  faker.date.future().toISOString(),
+      date,
       endsAt: faker.date.future().toISOString(),
       place: faker.name.jobArea(),
       capacity: faker.datatype.number({ min: 0 }),
