@@ -96,7 +96,9 @@ export async function subscribeToAnActivite(req: AuthenticatedRequest, res: Resp
     if (error.name === "NotFoundError") {
       return res.status(httpStatus.NOT_FOUND).send(error.message);
     }
-
+    if (error.name === "CannotEnrrolmentError") {
+      return res.status(httpStatus.UNAUTHORIZED).send(error.message);
+    }
     if (error.name === "CannotTicketError") {
       return res.status(httpStatus.UNAUTHORIZED).send(error.message);
     }
