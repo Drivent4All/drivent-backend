@@ -83,7 +83,6 @@ export async function getDateActivities(req: AuthenticatedRequest, res: Response
 export async function subscribeToAnActivite(req: AuthenticatedRequest, res: Response) {
   const { userId } = req;
   const id = Number(req.params.id);
-  console.log("ola");
   try {
     const subscribe = await activitieService.subscribeByIdActivite(Number(userId), id);
 
@@ -118,6 +117,17 @@ export async function subscribeToAnActivite(req: AuthenticatedRequest, res: Resp
       return res.status(httpStatus.UNAUTHORIZED).send(error.message);
     }
 
+    return res.sendStatus(httpStatus.BAD_REQUEST);
+  }
+}
+export async function checkIfSubscribed(req: AuthenticatedRequest, res: Response) {
+  const { userId } = req;
+  const activityId = Number(req.params.activityId);
+  try {
+    const subscription = await activitieService.checkSubscription(Number(userId), activityId);
+    if(!subscription) return res.sendStatus(httpStatus.NOT_FOUND);
+    return res.status(httpStatus.OK).send(subscription);
+  } catch (error) {
     return res.sendStatus(httpStatus.BAD_REQUEST);
   }
 }
