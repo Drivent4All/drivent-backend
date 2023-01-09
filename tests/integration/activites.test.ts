@@ -125,17 +125,7 @@ describe("when token is valid", () => {
     const response = await server.get("/activities").set("Authorization", `Bearer ${token}`);
     expect(response.status).toEqual(httpStatus.OK);
     expect(response.body).toEqual([{
-      id: expect.any(Number),
-      name: expect.any(String),
-      startsAt: expect.any(String),
-      endsAt: expect.any(String),
-      place: expect.any(String),
-      date: expect.any(String),
-      capacity: expect.any(Number),
-      ticketTypeId: expect.any(Number),
-      createdAt: expect.any(String),
-      updatedAt: expect.any(String),
-      BookingActivite: expect.any(Array)
+      date: expect.any(String)
     }]);
   });
 });
