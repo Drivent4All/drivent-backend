@@ -51,6 +51,8 @@ model Enrollment {
   User      User     @relation(fields: [userId], references: [id])
   Address   Address?
   Ticket    Ticket[]
+
+  @@index([userId])
 }
 
 model Address {
@@ -90,6 +92,8 @@ model Ticket {
   Enrollment   Enrollment   @relation(fields: [enrollmentId], references: [id])
   TicketType   TicketType   @relation(fields: [ticketTypeId], references: [id])
   Payment      Payment[]
+
+  @@index([enrollmentId])
 }
 
 model Payment {
@@ -101,6 +105,8 @@ model Payment {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   Ticket         Ticket   @relation(fields: [ticketId], references: [id])
+
+  @@index([ticketId])
 }
 
 model Hotel {
@@ -146,6 +152,8 @@ model Activite {
   updatedAt       DateTime          @updatedAt
   TicketType      TicketType        @relation(fields: [ticketTypeId], references: [id])
   BookingActivite BookingActivite[]
+
+  @@index([date])
 }
 
 model BookingActivite {
@@ -155,6 +163,8 @@ model BookingActivite {
   Activite   Activite @relation(fields: [activiteId], references: [id])
   createdAt  DateTime @default(now())
   User       User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
 }
 
 enum TicketStatus {

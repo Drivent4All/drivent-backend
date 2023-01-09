@@ -1,7 +1,6 @@
 import app, { init } from "@/app";
 import { prisma } from "@/config";
 import faker from "@faker-js/faker";
-import { DATE } from "@faker-js/faker/definitions/date";
 import { TicketStatus } from "@prisma/client";
 import dayjs from "dayjs";
 import e from "express";
@@ -20,9 +19,9 @@ import {
   createTicketTypeRemote,
   createHotel,
   createRoomWithHotelId,
-  createBooking, 
+  createBooking, createActivitie,  findActivites, createActivitieCapacityZero 
 } from "../factories";
-import { createActivitie,  findActivites, createActivitieCapacityZero } from "../factories/activities-factory";
+// import { createActivitie,  findActivites, createActivitieCapacityZero } from "../factories/activities-factory";
 import { cleanDb, generateValidToken } from "../helpers";
 
 beforeAll(async () => {
@@ -35,19 +34,17 @@ beforeEach(async () => {
 
 const server = supertest(app);
 
-describe("GET /activite", () => {
+describe("GET /activite",  () => {
   it("should respond with status 401 if no token is given", async () => {
     const response = await server.get("/activite");
-
+console.log("1")
     expect(response.status).toBe(httpStatus.UNAUTHORIZED);
   });
-});
-
 it("should respond with status 401 if given token is not valid", async () => {
   const token = faker.lorem.word();
 
   const response = await server.get("/activite").set("Authorization", `Bearer ${token}`);
-
+  console.log("2")
   expect(response.status).toBe(httpStatus.UNAUTHORIZED);
 });
 
@@ -56,8 +53,10 @@ it("should respond with status 401 if there is no session for given token", asyn
   const token = jwt.sign({ userId: userWithoutSession.id }, process.env.JWT_SECRET);
 
   const response = await server.get("/activite").set("Authorization", `Bearer ${token}`);
-
+  console.log("3")
   expect(response.status).toBe(httpStatus.UNAUTHORIZED);
+});
+
 });
 
 describe("when token is valid", () => {
@@ -90,25 +89,9 @@ describe("when token is valid", () => {
     const payment = await createPayment(ticket.id, ticketType.price);
 
     const response = await server.get("/activite").set("Authorization", `Bearer ${token}`);
-    console.log("payd", response.status);
+
     expect(response.status).toEqual(httpStatus.PAYMENT_REQUIRED);
   });
-
-  // it("should respond with status 401 when user has not a booking ", async () => {
-  //   const user = await createUser();
-  //   const token = await generateValidToken(user);
-  //   const enrollment = await createEnrollmentWithAddress(user);
-  //   const ticketType = await createTicketTypeWithHotel();
-  //   const ticket = await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
-  //   const payment = await createPayment(ticket.id, ticketType.price);
-
-  //   const hotel = await createHotel();
-  //   const room = await createRoomWithHotelId(hotel.id);
-
-  //   const response = await server.get("/activite").set("Authorization", `Bearer ${token}`);
-
-  //   expect(response.status).toEqual(httpStatus.UNAUTHORIZED);
-  // });
 
   it("should respond with status 200 when user has activites ", async () => {
     const user = await createUser();
@@ -140,7 +123,7 @@ describe("when token is valid", () => {
       BookingActivite: expect.any(Array)
     }]);
   });
-});
+})
 
 describe("GET /activite/:date", () => {
   describe("when token is valid", () => {
@@ -152,7 +135,7 @@ describe("GET /activite/:date", () => {
       const user = await createUser();
       const token = await generateValidToken(user);
       const invalidParams = { [faker.lorem.word()]: faker.lorem.word() };
-
+console.log("get activite:date")
       const enrollment = await createEnrollmentWithAddress(user);
       const ticketType = await createTicketTypeWithHotel();
       const ticket = await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);     
@@ -214,23 +197,6 @@ describe("GET /activite/:date", () => {
 
       expect(response.status).toEqual(httpStatus.PAYMENT_REQUIRED);
     });
-
-    // it("should respond with status 404 when user has not a booking ", async () => {
-    //   const user = await createUser();
-    //   const token = await generateValidToken(user);
-    //   const body = generateValidBody();
-    //   const enrollment = await createEnrollmentWithAddress(user);
-    //   const ticketType = await createTicketTypeWithHotel();
-    //   const ticket = await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
-    //   const payment = await createPayment(ticket.id, ticketType.price);
-
-    //   const hotel = await createHotel();
-    //   const room = await createRoomWithHotelId(hotel.id);
-
-    //   const response = await server.get("/activite/date").set("Authorization", `Bearer ${token}`).send(body);
-
-    //   expect(response.status).toEqual(httpStatus.UNAUTHORIZED);
-    // });
 
     it("should respond with status 200 and a empty list when user has no activites on the day sent on body", async () => {
       const user = await createUser();
@@ -364,21 +330,6 @@ describe("POST /activite", () => {
       expect(response.status).toEqual(httpStatus.PAYMENT_REQUIRED);
     });
 
-    // it("should respond with status 401 when user has not a booking ", async () => {
-    //   const user = await createUser();
-    //   const token = await generateValidToken(user);
-    //   const enrollment = await createEnrollmentWithAddress(user);
-    //   const ticketType = await createTicketTypeWithHotel();
-    //   const ticket = await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
-    //   const payment = await createPayment(ticket.id, ticketType.price);
-
-    //   const hotel = await createHotel();
-    //   const room = await createRoomWithHotelId(hotel.id);
-
-    //   const response = await server.post(`/activite/${id}`).set("Authorization", `Bearer ${token}`);
-
-    //   expect(response.status).toEqual(httpStatus.UNAUTHORIZED);
-    // });
     it("should respond with status 401 when the activite is booked", async () => {
       const user1 = await createUser();
       const user2= await createUser();
@@ -443,7 +394,3 @@ describe("POST /activite", () => {
     });
   });
 });
-// });
-// {
-//   "*": "npx eslint . --fix"
-// }
