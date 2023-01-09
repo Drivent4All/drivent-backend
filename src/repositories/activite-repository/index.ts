@@ -26,11 +26,29 @@ async function findActivites(ticketTypeId: number, userId: number) {
 }
 
 async function findActivitesByDate(ticketTypeId: number, userId: number, date: Date) {
-  console.log("date do repository", date)
   return prisma.activite.findMany({
     where: {
       ticketTypeId,
       date,
+    },
+    include: {
+      BookingActivite: {
+        where: {
+          userId
+        }
+      }
+    },
+  });
+}
+
+async function checkSameStartTime(userId: number, date: Date, startsAt: number) {
+  const startsSame = startsAt.toString();
+  const startsSamePlusOne = (startsAt + 1).toString(); 
+  console.log(startsSame, startsSamePlusOne);
+  return prisma.activite.findFirst({
+    where: {
+      date,
+      startsAt: startsSame || startsSamePlusOne
     },
     include: {
       BookingActivite: {
@@ -56,6 +74,7 @@ async function findActivitesById(id: number, userId: number) {
     }
   });
 }
+
 async function updateActivities(id: number, capacity: number) {
   return prisma.activite.update({
     where: {
@@ -67,13 +86,23 @@ async function updateActivities(id: number, capacity: number) {
   });
 }
 
+async function checkSub(userId: number, activityId: number) {
+  return prisma.bookingActivite.findFirst({
+    where: { 
+      userId,
+      activiteId: activityId
+    }
+  });
+}
+
 const activiteRepository = {
   findActivites,
   findActivitesById,
-  // subscribeActivities,
   updateActivities,
   getAcitivitiesDates,
-  findActivitesByDate
+  findActivitesByDate,
+  checkSub,
+  checkSameStartTime
 };
 
 export default activiteRepository;

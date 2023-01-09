@@ -52,7 +52,6 @@ async function getActivites(userId: number) {
 }
 
 async function getActivitiesByDay(userId: number, date: string) {
-
   const newDate = new Date(date);
 
   const ticketTypeId = await confirmationStage(userId);
@@ -86,6 +85,10 @@ async function subscribeByIdActivite(userId: number, id: number) {
     throw cannotActiviteOverCapacityError();
   }
 
+  // const activityChosen = await activiteRepository.findActivitesById(activityId, userId);
+  // const sameDay = await activiteRepository.checkSameStartTime(userId, activityChosen.date, Number(activityChosen.startsAt.split("h")[0]));
+  // console.log(sameDay);
+
   await activiteRepository.updateActivities(id, activiteSelected.capacity);
 
   await bookingActiviteRepository.reserveActivite(userId, id);
@@ -95,13 +98,21 @@ async function subscribeByIdActivite(userId: number, id: number) {
   return updatedActivite.BookingActivite;
 }
 
+async function checkSubscription(userId: number, activityId: number) {
+  await activitieService.confirmationStage(Number(userId));
+
+  const subscription = await activiteRepository.checkSub(userId, activityId);
+
+  return subscription;
+}
 
 const activitieService = {
   confirmationStage,
   getActivites,
   getActivitiesByDay,
   subscribeByIdActivite,
-  getAcitivitiesDates
+  getAcitivitiesDates,
+  checkSubscription
 };
 
 export default activitieService;

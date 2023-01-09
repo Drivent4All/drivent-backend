@@ -36,7 +36,7 @@ export function createActiviteWithDate(ticketTypeId: number, date: string) {
   return prisma.activite.create({
     data: {
       name: faker.name.findName(),
-      startsAt:  faker.date.future().toISOString(),
+      startsAt: faker.date.future().toISOString(),
       date,
       endsAt: faker.date.future().toISOString(),
       place: faker.name.jobArea(),
