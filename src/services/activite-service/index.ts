@@ -43,13 +43,13 @@ async function getAcitivitiesDates(userId: number) {
   return dates;
 }
 
-async function getActivities(userId: number) {
-  const ticketTypeId = await activitieService.confirmationStage(Number(userId));
+// async function getActivities(userId: number) {
+//   const ticketTypeId = await activitieService.confirmationStage(Number(userId));
 
-  const activites = await activiteRepository.findActivities(ticketTypeId, userId);
+//   const activites = await activiteRepository.findActivities(ticketTypeId, userId);
 
-  return activites;
-}
+//   return activites;
+// }
 
 async function getActivitiesByDay(userId: number, date: string) {
   const newDate = new Date(date);
@@ -112,7 +112,7 @@ if(Number.isNaN(activityId)){
 
 const activitieService = {
   confirmationStage,
-  getActivities,
+  // getActivities,
   getActivitiesByDay,
   subscribeByIdActivity,
   getAcitivitiesDates,

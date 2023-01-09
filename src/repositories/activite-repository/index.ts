@@ -10,20 +10,20 @@ async function getAcitivitiesDates(ticketTypeId: number) {
   });
 }
 
-async function findActivities(ticketTypeId: number, userId: number) {
-  return prisma.activite.findMany({
-    where: {
-      ticketTypeId
-    },
-    include: {
-      BookingActivite: {
-        where: {
-          userId
-        }
-      }
-    },
-  });
-}
+// async function findActivities(ticketTypeId: number, userId: number) {
+//   return prisma.activite.findMany({
+//     where: {
+//       ticketTypeId
+//     },
+//     include: {
+//       BookingActivite: {
+//         where: {
+//           userId
+//         }
+//       }
+//     },
+//   });
+// }
 
 async function findActivitiesByDate(ticketTypeId: number, userId: number, date: Date) {
   return prisma.activite.findMany({
@@ -96,7 +96,7 @@ async function checkSub(userId: number, activityId: number) {
 }
 
 const activiteRepository = {
-  findActivities,
+  // findActivities,
   findActivitiesById,
   updateActivities,
   getAcitivitiesDates,
