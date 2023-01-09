@@ -10,7 +10,7 @@ async function getAcitivitiesDates(ticketTypeId: number) {
   });
 }
 
-async function findActivites(ticketTypeId: number, userId: number) {
+async function findActivities(ticketTypeId: number, userId: number) {
   return prisma.activite.findMany({
     where: {
       ticketTypeId
@@ -25,7 +25,7 @@ async function findActivites(ticketTypeId: number, userId: number) {
   });
 }
 
-async function findActivitesByDate(ticketTypeId: number, userId: number, date: Date) {
+async function findActivitiesByDate(ticketTypeId: number, userId: number, date: Date) {
   return prisma.activite.findMany({
     where: {
       ticketTypeId,
@@ -60,7 +60,7 @@ async function checkSameStartTime(userId: number, date: Date, startsAt: number) 
   });
 }
 
-async function findActivitesById(id: number, userId: number) {
+async function findActivitiesById(id: number, userId: number) {
   return prisma.activite.findUnique({
     where: {
       id
@@ -96,11 +96,11 @@ async function checkSub(userId: number, activityId: number) {
 }
 
 const activiteRepository = {
-  findActivites,
-  findActivitesById,
+  findActivities,
+  findActivitiesById,
   updateActivities,
   getAcitivitiesDates,
-  findActivitesByDate,
+  findActivitiesByDate,
   checkSub,
   checkSameStartTime
 };

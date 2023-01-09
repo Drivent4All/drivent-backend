@@ -1,7 +1,7 @@
 import { prisma } from "@/config";
 import { Activite } from "@prisma/client";
 
-async function reserveActivite(userId: number, activiteId: number) {
+async function reserveActivity(userId: number, activiteId: number) {
   return prisma.bookingActivite.create({
     data: {
       userId,
@@ -12,7 +12,7 @@ async function reserveActivite(userId: number, activiteId: number) {
 }
 
 const bookingActiviteRepository = {
-  reserveActivite
+  reserveActivity
 };
 
 export default bookingActiviteRepository;

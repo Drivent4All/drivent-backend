@@ -32,7 +32,6 @@ export function createActivitieCapacityZero(ticketTypeId: number) {
 }
 
 export function createActiviteWithDate(ticketTypeId: number, date: string) {
-  console.log("entrou factory");
   return prisma.activite.create({
     data: {
       name: faker.name.findName(),
@@ -47,10 +46,18 @@ export function createActiviteWithDate(ticketTypeId: number, date: string) {
   });
 }
 export function findActivites(id: number) {
-  console.log("entrou factory");
   return prisma.activite.findUnique({
     where: {
       id
     }
   });
+}
+
+export function createBookingActivity(activiteId: number, userId:number){
+  return prisma.bookingActivite.create({
+    data:{
+      userId,
+      activiteId
+    }
+  })
 }

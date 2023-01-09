@@ -43,10 +43,10 @@ async function getAcitivitiesDates(userId: number) {
   return dates;
 }
 
-async function getActivites(userId: number) {
+async function getActivities(userId: number) {
   const ticketTypeId = await activitieService.confirmationStage(Number(userId));
 
-  const activites = await activiteRepository.findActivites(ticketTypeId, userId);
+  const activites = await activiteRepository.findActivities(ticketTypeId, userId);
 
   return activites;
 }
@@ -60,7 +60,7 @@ async function getActivitiesByDay(userId: number, date: string) {
     throw cannotActiviteDateError();
   }
 
-  const activities = await activiteRepository.findActivitesByDate(ticketTypeId, userId, newDate);
+  const activities = await activiteRepository.findActivitiesByDate(ticketTypeId, userId, newDate);
 
   if (activities.length === 0) {
     throw noActivitiesError();
@@ -69,10 +69,10 @@ async function getActivitiesByDay(userId: number, date: string) {
   return activities;
 }
 
-async function subscribeByIdActivite(userId: number, id: number) {
+async function subscribeByIdActivity(userId: number, id: number) {
   const ticketTypeId = await activitieService.confirmationStage(Number(userId));
 
-  const activiteSelected = await activiteRepository.findActivitesById(id, userId);
+  const activiteSelected = await activiteRepository.findActivitiesById(id, userId);
 
   if (!activiteSelected) {
     throw notFoundError();
@@ -91,15 +91,19 @@ async function subscribeByIdActivite(userId: number, id: number) {
 
   await activiteRepository.updateActivities(id, activiteSelected.capacity);
 
-  await bookingActiviteRepository.reserveActivite(userId, id);
+  await bookingActiviteRepository.reserveActivity(userId, id);
 
-  const updatedActivite = await activiteRepository.findActivitesById(activiteSelected.id, userId);
+  const updatedActivite = await activiteRepository.findActivitiesById(activiteSelected.id, userId);
 
   return updatedActivite.BookingActivite;
 }
 
 async function checkSubscription(userId: number, activityId: number) {
   await activitieService.confirmationStage(Number(userId));
+
+if(Number.isNaN(activityId)){
+  throw notFoundError()
+}
 
   const subscription = await activiteRepository.checkSub(userId, activityId);
 
@@ -108,9 +112,9 @@ async function checkSubscription(userId: number, activityId: number) {
 
 const activitieService = {
   confirmationStage,
-  getActivites,
+  getActivities,
   getActivitiesByDay,
-  subscribeByIdActivite,
+  subscribeByIdActivity,
   getAcitivitiesDates,
   checkSubscription
 };
