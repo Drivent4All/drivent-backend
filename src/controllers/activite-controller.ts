@@ -3,46 +3,67 @@ import { AuthenticatedRequest } from "@/middlewares";
 import httpStatus from "http-status";
 import activitieService from "@/services/activite-service";
 
-export async function getUsersActivites(req: AuthenticatedRequest, res: Response) {
-  const { userId } = req;
+// export async function getUsersActivities(req: AuthenticatedRequest, res: Response) {
+//   const { userId } = req;
 
-  try {
-    const activites = await activitieService.getActivites(Number(userId));
+//   try {
+//     const activites = await activitieService.getActivities(Number(userId));
 
-    return res.status(httpStatus.OK).send(activites);
-  } catch (error) {
-    if (error.name === "CannotPaymemtError") {
-      return res.status(httpStatus.PAYMENT_REQUIRED).send(error.message);
-    }
-    if (error.name === "CannotActiviteDateError") {
-      return res.status(httpStatus.BAD_REQUEST).send(error.message);
-    }
-    if (error.name === "CannotTicketError") {
-      return res.status(httpStatus.UNAUTHORIZED).send(error.message);
-    }
-    if (error.name === "CannotEnrrolmentError") {
-      return res.status(httpStatus.UNAUTHORIZED).send(error.message);
-    }
-    if (error.name === "CannotOnlineEventError") {
-      return res.status(httpStatus.UNAUTHORIZED).send(error.message);
-    }
-    if (error.name === "CannotActiviteBookingError") {
-      return res.status(httpStatus.UNAUTHORIZED).send(error.message);
-    }
-    return res.sendStatus(httpStatus.BAD_REQUEST);
-  }
-}
+//     return res.status(httpStatus.OK).send(activites);
+//   } catch (error) {
+//     if (error.name === "CannotPaymemtError") {
+//       return res.status(httpStatus.PAYMENT_REQUIRED).send(error.message);
+//     }
+//     if (error.name === "CannotActiviteDateError") {
+//       return res.status(httpStatus.BAD_REQUEST).send(error.message);
+//     }
+//     if (error.name === "CannotTicketError") {
+//       return res.status(httpStatus.UNAUTHORIZED).send(error.message);
+//     }
+//     if (error.name === "CannotEnrrolmentError") {
+//       return res.status(httpStatus.UNAUTHORIZED).send(error.message);
+//     }
+//     if (error.name === "CannotOnlineEventError") {
+//       return res.status(httpStatus.UNAUTHORIZED).send(error.message);
+//     }
+//     if (error.name === "CannotActiviteBookingError") {
+//       return res.status(httpStatus.UNAUTHORIZED).send(error.message);
+//     }
+//     return res.sendStatus(httpStatus.BAD_REQUEST);
+//   }
+// }
 
 export async function getActivitiesDates(req: AuthenticatedRequest, res: Response) {
   const { userId } = req;
    
   try {
     const dates = await activitieService.getAcitivitiesDates(userId);
+
+    console.log(dates)
     return res.status(httpStatus.OK).send(dates);
-  } catch (error) {    
-    return res.status(httpStatus.BAD_REQUEST).send(error.message);    
   }
-}
+    catch (error) {
+      if (error.name === "CannotPaymemtError") {
+        return res.status(httpStatus.PAYMENT_REQUIRED).send(error.message);
+      }
+      if (error.name === "CannotActiviteDateError") {
+        return res.status(httpStatus.BAD_REQUEST).send(error.message);
+      }
+      if (error.name === "CannotTicketError") {
+        return res.status(httpStatus.UNAUTHORIZED).send(error.message);
+      }
+      if (error.name === "CannotEnrrolmentError") {
+        return res.status(httpStatus.UNAUTHORIZED).send(error.message);
+      }
+      if (error.name === "CannotOnlineEventError") {
+        return res.status(httpStatus.UNAUTHORIZED).send(error.message);
+      }
+      if (error.name === "CannotActiviteBookingError") {
+        return res.status(httpStatus.UNAUTHORIZED).send(error.message);
+      }
+      return res.sendStatus(httpStatus.BAD_REQUEST);
+    }
+  }
 
 export async function getDateActivities(req: AuthenticatedRequest, res: Response) {
   const { userId } = req;
@@ -80,11 +101,11 @@ export async function getDateActivities(req: AuthenticatedRequest, res: Response
   }
 }
 
-export async function subscribeToAnActivite(req: AuthenticatedRequest, res: Response) {
+export async function subscribeToAnActivity(req: AuthenticatedRequest, res: Response) {
   const { userId } = req;
   const id = Number(req.params.id);
   try {
-    const subscribe = await activitieService.subscribeByIdActivite(Number(userId), id);
+    const subscribe = await activitieService.subscribeByIdActivity(Number(userId), id);
 
     return res.status(httpStatus.OK).send(subscribe);
   } catch (error) {
@@ -128,6 +149,15 @@ export async function checkIfSubscribed(req: AuthenticatedRequest, res: Response
     if(!subscription) return res.sendStatus(httpStatus.NOT_FOUND);
     return res.status(httpStatus.OK).send(subscription);
   } catch (error) {
+    if (error.name === "CannotPaymemtError") {
+      return res.status(httpStatus.PAYMENT_REQUIRED).send(error.message);
+    }
+    if (error.name === "CannotEnrrolmentError") {
+      return res.status(httpStatus.UNAUTHORIZED).send(error.message);
+    }
+    if (error.name === "CannotTicketError") {
+      return res.status(httpStatus.UNAUTHORIZED).send(error.message);
+    }
     return res.sendStatus(httpStatus.BAD_REQUEST);
   }
 }
