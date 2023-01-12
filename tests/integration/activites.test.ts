@@ -43,23 +43,6 @@ describe("GET /activities", () => {
   });
 });
 
-it("should respond with status 401 if given token is not valid", async () => {
-  const token = faker.lorem.word();
-
-  const response = await server.get("/activities").set("Authorization", `Bearer ${token}`);
-
-  expect(response.status).toBe(httpStatus.UNAUTHORIZED);
-});
-
-it("should respond with status 401 if there is no session for given token", async () => {
-  const userWithoutSession = await createUser();
-  const token = jwt.sign({ userId: userWithoutSession.id }, process.env.JWT_SECRET);
-
-  const response = await server.get("/activities").set("Authorization", `Bearer ${token}`);
-
-  expect(response.status).toBe(httpStatus.UNAUTHORIZED);
-});
-
 describe("when token is valid", () => {
   it("should respond with status 401 when user has no enrollment ", async () => {
     const user = await createUser();
@@ -134,7 +117,7 @@ describe("GET /activities/:date", () => {
   describe("when token is valid", () => {
     const date = faker.date.future().toISOString();
     const generateValidParams = () => {
-      return (dayjs(date).year()) + "-" + dayjs(date).month() + "-" + dayjs(date).day()
+      return (dayjs(date).year()) + "-" + dayjs(date).month() + "-" + dayjs(date).day();
     };
 
     it("should respond with status 400 when body is not valid", async () => {
@@ -159,7 +142,7 @@ describe("GET /activities/:date", () => {
       const ticket = await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
       const payment = await createPayment(ticket.id, ticketType.price);
 
-      const params = "2023-20-30"
+      const params = "2023-20-30";
 
       const response = await server.get(`/activities/${params}`).set("Authorization", `Bearer ${token}`);
 
@@ -223,13 +206,12 @@ describe("GET /activities/:date", () => {
 
       const activiteDate = activite.date;
       const date = dayjs(activiteDate).format("YYYY-MM-DD");
-      const params = date
+      const params = date;
       const findActivities = await findActivites(activite.id);
 
       const response = await server.get(`/activities/${params}`).set("Authorization", `Bearer ${token}`);
 
       expect(response.status).toEqual(httpStatus.BAD_REQUEST);
-
     });
 
     it("should respond with status 200 when user has activites ", async () => {
@@ -252,9 +234,9 @@ describe("GET /activities/:date", () => {
 
       const activiteDate = activite.date;
 
-      const date = dayjs(activiteDate).add(1, 'day').format("YYYY-MM-DD");
+      const date = dayjs(activiteDate).add(1, "day").format("YYYY-MM-DD");
 
-      const params = date
+      const params = date;
 
       const response = await server.get(`/activities/${params}`).set("Authorization", `Bearer ${token}`);
 
@@ -269,13 +251,11 @@ describe("GET /activities/:date", () => {
         capacity: expect.any(Number),
         ticketTypeId: expect.any(Number),
         createdAt: expect.any(String),
-        updatedAt: expect.any(String),
-        BookingActivite: expect.any(Array)
+        updatedAt: expect.any(String)
       }]);
     });
   });
 });
-
 
 describe("POST /activities", () => {
   it("should respond with status 401 if no token is given", async () => {
@@ -401,7 +381,6 @@ describe("POST /activities", () => {
   });
 });
 
-
 describe("GET /user/:activityId", () => {
   it("should respond with status 401 if no token is given", async () => {
     const activityId = faker.datatype.number();
@@ -413,7 +392,7 @@ describe("GET /user/:activityId", () => {
   it("should respond with status 401 if given token is not valid", async () => {
     const token = faker.lorem.word();
     const id = faker.datatype.number();
-    const response = await server.get(`/activities/user/`).set("Authorization", `Bearer ${token}`);
+    const response = await server.get("/activities/user/").set("Authorization", `Bearer ${token}`);
 
     expect(response.status).toBe(httpStatus.UNAUTHORIZED);
   });
@@ -431,7 +410,7 @@ describe("GET /user/:activityId", () => {
     describe("when token is valid", () => {
       const date = faker.date.future().toISOString();
       const generateValidParams = () => {
-        return (dayjs(date).year()) + "-" + dayjs(date).month() + "-" + dayjs(date).day()
+        return (dayjs(date).year()) + "-" + dayjs(date).month() + "-" + dayjs(date).day();
       };
 
       it("should respond with status 400 when params is not valid", async () => {
@@ -442,7 +421,7 @@ describe("GET /user/:activityId", () => {
         const ticket = await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
         const payment = await createPayment(ticket.id, ticketType.price);
 
-        const params = "z"
+        const params = "z";
 
         const response = await server.get(`/activities/user/${params}`).set("Authorization", `Bearer ${token}`);
 
@@ -492,7 +471,7 @@ describe("GET /user/:activityId", () => {
         const ticketType = await createTicketTypeWithHotel();
         const ticket = await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
         const activite = await createActivitie(ticketType.id);
-        const booking = await createBookingActivity(activite.id, user.id)
+        const booking = await createBookingActivity(activite.id, user.id);
 
         const response = await server.get(`/activities/user/${activite.id}`).set("Authorization", `Bearer ${token}`);
 

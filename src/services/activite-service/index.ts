@@ -60,7 +60,7 @@ async function getActivitiesByDay(userId: number, date: string) {
     throw cannotActiviteDateError();
   }
 
-  const activities = await activiteRepository.findActivitiesByDate(ticketTypeId, userId, newDate);
+  const activities = await activiteRepository.findActivitiesByDate(userId, newDate);
 
   if (activities.length === 0) {
     throw noActivitiesError();
@@ -101,9 +101,9 @@ async function subscribeByIdActivity(userId: number, id: number) {
 async function checkSubscription(userId: number, activityId: number) {
   await activitieService.confirmationStage(Number(userId));
 
-if(Number.isNaN(activityId)){
-  throw notFoundError()
-}
+  if(Number.isNaN(activityId)) {
+    throw notFoundError();
+  }
 
   const subscription = await activiteRepository.checkSub(userId, activityId);
 
