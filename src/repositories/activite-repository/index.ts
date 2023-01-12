@@ -1,5 +1,8 @@
 import { prisma } from "@/config";
-import { Activite } from "@prisma/client";
+import { createClient } from "redis";
+
+const cache = createClient();
+cache.connect();
 
 async function getAcitivitiesDates(ticketTypeId: number) {
   return prisma.activite.groupBy({
@@ -25,26 +28,28 @@ async function getAcitivitiesDates(ticketTypeId: number) {
 //   });
 // }
 
-async function findActivitiesByDate(ticketTypeId: number, userId: number, date: Date) {
-  return prisma.activite.findMany({
+async function findActivitiesByDate(userId: number, date: Date) {
+  const cacheDateActivities = await cache.get(String(date));
+
+  if(cacheDateActivities) {
+    return JSON.parse(cacheDateActivities);
+  }
+
+  const dateActivities = await prisma.activite.findMany({
     where: {
-      ticketTypeId,
       date,
-    },
-    include: {
-      BookingActivite: {
-        where: {
-          userId
-        }
-      }
-    },
+    }
   });
+
+  cache.set(String(date), JSON.stringify(dateActivities));
+
+  return dateActivities;
 }
 
 async function checkSameStartTime(userId: number, date: Date, startsAt: number) {
   const startsSame = startsAt.toString();
   const startsSamePlusOne = (startsAt + 1).toString(); 
-  console.log(startsSame, startsSamePlusOne);
+
   return prisma.activite.findFirst({
     where: {
       date,
@@ -61,7 +66,7 @@ async function checkSameStartTime(userId: number, date: Date, startsAt: number) 
 }
 
 async function findActivitiesById(id: number, userId: number) {
-  return prisma.activite.findUnique({
+  const activite = await prisma.activite.findUnique({
     where: {
       id
     },
@@ -73,10 +78,12 @@ async function findActivitiesById(id: number, userId: number) {
       },
     }
   });
+
+  return activite;
 }
 
 async function updateActivities(id: number, capacity: number) {
-  return prisma.activite.update({
+  const updatedActivity = await prisma.activite.update({
     where: {
       id
     },
@@ -84,6 +91,10 @@ async function updateActivities(id: number, capacity: number) {
       capacity: capacity - 1
     }
   });
+
+  await cache.flushAll();
+
+  return updatedActivity;
 }
 
 async function checkSub(userId: number, activityId: number) {

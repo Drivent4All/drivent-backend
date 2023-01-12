@@ -39,31 +39,30 @@ export async function getActivitiesDates(req: AuthenticatedRequest, res: Respons
   try {
     const dates = await activitieService.getAcitivitiesDates(userId);
 
-    console.log(dates)
     return res.status(httpStatus.OK).send(dates);
   }
-    catch (error) {
-      if (error.name === "CannotPaymemtError") {
-        return res.status(httpStatus.PAYMENT_REQUIRED).send(error.message);
-      }
-      if (error.name === "CannotActiviteDateError") {
-        return res.status(httpStatus.BAD_REQUEST).send(error.message);
-      }
-      if (error.name === "CannotTicketError") {
-        return res.status(httpStatus.UNAUTHORIZED).send(error.message);
-      }
-      if (error.name === "CannotEnrrolmentError") {
-        return res.status(httpStatus.UNAUTHORIZED).send(error.message);
-      }
-      if (error.name === "CannotOnlineEventError") {
-        return res.status(httpStatus.UNAUTHORIZED).send(error.message);
-      }
-      if (error.name === "CannotActiviteBookingError") {
-        return res.status(httpStatus.UNAUTHORIZED).send(error.message);
-      }
-      return res.sendStatus(httpStatus.BAD_REQUEST);
+  catch (error) {
+    if (error.name === "CannotPaymemtError") {
+      return res.status(httpStatus.PAYMENT_REQUIRED).send(error.message);
     }
+    if (error.name === "CannotActiviteDateError") {
+      return res.status(httpStatus.BAD_REQUEST).send(error.message);
+    }
+    if (error.name === "CannotTicketError") {
+      return res.status(httpStatus.UNAUTHORIZED).send(error.message);
+    }
+    if (error.name === "CannotEnrrolmentError") {
+      return res.status(httpStatus.UNAUTHORIZED).send(error.message);
+    }
+    if (error.name === "CannotOnlineEventError") {
+      return res.status(httpStatus.UNAUTHORIZED).send(error.message);
+    }
+    if (error.name === "CannotActiviteBookingError") {
+      return res.status(httpStatus.UNAUTHORIZED).send(error.message);
+    }
+    return res.sendStatus(httpStatus.BAD_REQUEST);
   }
+}
 
 export async function getDateActivities(req: AuthenticatedRequest, res: Response) {
   const { userId } = req;
