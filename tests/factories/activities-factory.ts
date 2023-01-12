@@ -53,11 +53,11 @@ export function findActivites(id: number) {
   });
 }
 
-export function createBookingActivity(activiteId: number, userId:number){
+export function createBookingActivity(activiteId: number, userId: number) {
   return prisma.bookingActivite.create({
-    data:{
+    data: {
       userId,
       activiteId
     }
-  })
+  });
 }
