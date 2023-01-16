@@ -1,11 +1,11 @@
-import { cannotActiviteTicketError, cannotActiviteDoesntMatchError, cannotActiviteOverCapacityError, cannotActiviteDateError, cannotActiviteBookingError, cannotActivitePaymemtError, cannotActiviteOnlineEventError, cannotActiviteEnrrolmentError, noActivitiesError, notFoundError } from "@/errors";
+import { cannotActiviteTicketError, cannotActiviteDoesntMatchError, cannotActiviteOverCapacityError, conflictActivitiesError, cannotActiviteDateError, cannotActiviteBookingError, cannotActivitePaymemtError, cannotActiviteOnlineEventError, cannotActiviteEnrrolmentError, noActivitiesError, notFoundError } from "@/errors";
 import roomRepository from "@/repositories/room-repository";
 import bookingRepository from "@/repositories/booking-repository";
 import enrollmentRepository from "@/repositories/enrollment-repository";
 import tikectRepository from "@/repositories/ticket-repository";
 import activiteRepository from "@/repositories/activite-repository";
 import { number, string } from "joi";
-import { Activite } from "@prisma/client";
+import { Activite, BookingActivite } from "@prisma/client";
 import { error } from "console";
 import dayjs from "dayjs";
 import httpStatus from "http-status";
@@ -27,29 +27,16 @@ async function confirmationStage(userId: number) {
   if (!ticket.TicketType.includesHotel) {
     throw cannotActiviteOnlineEventError();
   }
-  // const booking = await bookingRepository.findByUserId(userId);
-  // if (!booking) {
-  //   throw cannotActiviteBookingError();
-  // }
-
   return ticket.ticketTypeId;
 }
 
 async function getAcitivitiesDates(userId: number) {
   const ticketTypeId = await activitieService.confirmationStage(Number(userId));
 
-  const dates = await activiteRepository.getAcitivitiesDates(ticketTypeId);  
+  const dates = await activiteRepository.getAcitivitiesDates(ticketTypeId);
 
   return dates;
 }
-
-// async function getActivities(userId: number) {
-//   const ticketTypeId = await activitieService.confirmationStage(Number(userId));
-
-//   const activites = await activiteRepository.findActivities(ticketTypeId, userId);
-
-//   return activites;
-// }
 
 async function getActivitiesByDay(userId: number, date: string) {
   const newDate = new Date(date);
@@ -65,7 +52,7 @@ async function getActivitiesByDay(userId: number, date: string) {
   if (activities.length === 0) {
     throw noActivitiesError();
   }
-
+console.log("activities", activities)
   return activities;
 }
 
@@ -80,15 +67,40 @@ async function subscribeByIdActivity(userId: number, id: number) {
   if (ticketTypeId !== activiteSelected.ticketTypeId) {
     throw cannotActiviteDoesntMatchError();
   }
-  
+
   if (activiteSelected.capacity === 0) {
     throw cannotActiviteOverCapacityError();
   }
+  const alreadySubscibed = await activiteRepository.allSubscriptions(userId)
 
-  // const activityChosen = await activiteRepository.findActivitesById(activityId, userId);
-  // const sameDay = await activiteRepository.checkSameStartTime(userId, activityChosen.date, Number(activityChosen.startsAt.split("h")[0]));
-  // console.log(sameDay);
+  if (alreadySubscibed.length !== 0) {
 
+    for (let i = 0; i < alreadySubscibed.length; i++) {
+
+      const activitySubscribed = alreadySubscibed[i].Activite
+
+      const isActivitySubStartsBeforeActivityStartsSelected = dayjs(activitySubscribed.startsAt).isBefore(activiteSelected.startsAt)
+      const isActivitySubSEndsAfterActivityStartsSelected = dayjs(activitySubscribed.endsAt).isAfter(activiteSelected.startsAt)
+
+      if (isActivitySubStartsBeforeActivityStartsSelected && isActivitySubSEndsAfterActivityStartsSelected) {
+        throw conflictActivitiesError()
+      }
+
+      const isActivitySelectedtartsBeforeActivityStartsSub = dayjs(activiteSelected.startsAt).isBefore(activitySubscribed.startsAt)
+      const isActivitySelectedSEndsAfterActivityStartsSub = dayjs(activiteSelected.endsAt).isAfter(activitySubscribed.startsAt)
+
+      if (isActivitySelectedtartsBeforeActivityStartsSub && isActivitySelectedSEndsAfterActivityStartsSub) {
+        throw conflictActivitiesError()
+      }
+
+      const isActivitySelectedtartsTheSameActivityStartsSub = dayjs(activiteSelected.startsAt).isSame(activitySubscribed.startsAt)
+
+      if (isActivitySelectedtartsTheSameActivityStartsSub) {
+        throw conflictActivitiesError()
+      }
+    }
+
+  }
   await activiteRepository.updateActivities(id, activiteSelected.capacity);
 
   await bookingActiviteRepository.reserveActivity(userId, id);
@@ -101,7 +113,7 @@ async function subscribeByIdActivity(userId: number, id: number) {
 async function checkSubscription(userId: number, activityId: number) {
   await activitieService.confirmationStage(Number(userId));
 
-  if(Number.isNaN(activityId)) {
+  if (Number.isNaN(activityId)) {
     throw notFoundError();
   }
 
@@ -112,7 +124,6 @@ async function checkSubscription(userId: number, activityId: number) {
 
 const activitieService = {
   confirmationStage,
-  // getActivities,
   getActivitiesByDay,
   subscribeByIdActivity,
   getAcitivitiesDates,
