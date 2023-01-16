@@ -63,6 +63,13 @@ export function noActivitiesError(): ApplicationError {
   };
 }
 
+export function enrollmentError(): ApplicationError {
+  return {
+    name: "enrollmentError",
+    message: "Sorry, there is a enrollmentError.",
+  };
+}
+
 export function conflictActivitiesError(): ApplicationError {
   return {
     name: "ConflictActivitiesError",
