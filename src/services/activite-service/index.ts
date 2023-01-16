@@ -38,14 +38,6 @@ async function getAcitivitiesDates(userId: number) {
   return dates;
 }
 
-// async function getActivities(userId: number) {
-//   const ticketTypeId = await activitieService.confirmationStage(Number(userId));
-
-//   const activites = await activiteRepository.findActivities(ticketTypeId, userId);
-
-//   return activites;
-// }
-
 async function getActivitiesByDay(userId: number, date: string) {
   const newDate = new Date(date);
 
@@ -60,7 +52,7 @@ async function getActivitiesByDay(userId: number, date: string) {
   if (activities.length === 0) {
     throw noActivitiesError();
   }
-
+console.log("activities", activities)
   return activities;
 }
 
@@ -68,8 +60,6 @@ async function subscribeByIdActivity(userId: number, id: number) {
   const ticketTypeId = await activitieService.confirmationStage(Number(userId));
 
   const activiteSelected = await activiteRepository.findActivitiesById(id, userId);
-
-  console.log("ta no subscribe", activiteSelected.startsAt)
 
   if (!activiteSelected) {
     throw notFoundError();
@@ -82,76 +72,62 @@ async function subscribeByIdActivity(userId: number, id: number) {
     throw cannotActiviteOverCapacityError();
   }
   const alreadySubscibed = await activiteRepository.allSubscriptions(userId)
-console.log("aqui ta o already subscribe", alreadySubscibed)
-  if(alreadySubscibed.length!==0){
-    console.log("vai entrar no for")
-  for (let i = 0; i < alreadySubscibed.length; i++) {
 
-    const activitySubscribed = alreadySubscibed[i].Activite
-    const isActivitySubStartsBeforeActivityStartsSelected = dayjs(activitySubscribed.startsAt).isBefore(activiteSelected.startsAt)
-    const isActivitySubSEndsAfterActivityStartsSelected = dayjs(activitySubscribed.endsAt).isAfter(activiteSelected.startsAt)
-console.log("isActivitySubStartsBeforeActivityStartsSelected", isActivitySubStartsBeforeActivityStartsSelected)
-console.log("isActivitySubSEndsAfterActivityStartsSelected",isActivitySubSEndsAfterActivityStartsSelected)
-    if(isActivitySubStartsBeforeActivityStartsSelected && isActivitySubSEndsAfterActivityStartsSelected){
+  if (alreadySubscibed.length !== 0) {
+
+    for (let i = 0; i < alreadySubscibed.length; i++) {
+
+      const activitySubscribed = alreadySubscibed[i].Activite
+
+      const isActivitySubStartsBeforeActivityStartsSelected = dayjs(activitySubscribed.startsAt).isBefore(activiteSelected.startsAt)
+      const isActivitySubSEndsAfterActivityStartsSelected = dayjs(activitySubscribed.endsAt).isAfter(activiteSelected.startsAt)
+
+      if (isActivitySubStartsBeforeActivityStartsSelected && isActivitySubSEndsAfterActivityStartsSelected) {
         throw conflictActivitiesError()
       }
-    
-    const isActivitySelectedtartsBeforeActivityStartsSub = dayjs(activiteSelected.startsAt).isBefore(activitySubscribed.startsAt)
-    const isActivitySelectedSEndsAfterActivityStartsSub = dayjs(activiteSelected.endsAt).isAfter(activitySubscribed.startsAt)
 
-    if(isActivitySelectedtartsBeforeActivityStartsSub && isActivitySelectedSEndsAfterActivityStartsSub){
+      const isActivitySelectedtartsBeforeActivityStartsSub = dayjs(activiteSelected.startsAt).isBefore(activitySubscribed.startsAt)
+      const isActivitySelectedSEndsAfterActivityStartsSub = dayjs(activiteSelected.endsAt).isAfter(activitySubscribed.startsAt)
+
+      if (isActivitySelectedtartsBeforeActivityStartsSub && isActivitySelectedSEndsAfterActivityStartsSub) {
+        throw conflictActivitiesError()
+      }
+
+      const isActivitySelectedtartsTheSameActivityStartsSub = dayjs(activiteSelected.startsAt).isSame(activitySubscribed.startsAt)
+
+      if (isActivitySelectedtartsTheSameActivityStartsSub) {
         throw conflictActivitiesError()
       }
     }
-    
-      // if (Date.parse(activitySubscribed.startsAt) > Date.parse(activiteSelected.startsAt)) {
-      //   if (Date.parse(activiteSelected.startsAt) > Date.parse(activitySubscribed.endsAt)) {
-      //     throw notFoundError()
-      //   }
-      // }
-      // if (Date.parse(activiteSelected.startsAt) > Date.parse(activitySubscribed.startsAt)) {
-      //   if (Date.parse(activitySubscribed.startsAt) > Date.parse(activiteSelected.endsAt)) {
-      //     throw notFoundError()
-      //   }
-      // }
-    // }
+
   }
-    //   const isSelectedBetweenSubscribed = dayjs(activiteSelected.startsAt).isBetween()
-    //   const isSubscribedBetweenSelected
-    // }
+  await activiteRepository.updateActivities(id, activiteSelected.capacity);
 
-    // const activityChosen = await activiteRepository.findActivitesById(activityId, userId);
-    // const sameDay = await activiteRepository.checkSameStartTime(userId, activityChosen.date, Number(activityChosen.startsAt.split("h")[0]));
-    // console.log(sameDay);
+  await bookingActiviteRepository.reserveActivity(userId, id);
 
-    await activiteRepository.updateActivities(id, activiteSelected.capacity);
+  const updatedActivite = await activiteRepository.findActivitiesById(activiteSelected.id, userId);
 
-    await bookingActiviteRepository.reserveActivity(userId, id);
+  return updatedActivite.BookingActivite;
+}
 
-    const updatedActivite = await activiteRepository.findActivitiesById(activiteSelected.id, userId);
+async function checkSubscription(userId: number, activityId: number) {
+  await activitieService.confirmationStage(Number(userId));
 
-    return updatedActivite.BookingActivite;
+  if (Number.isNaN(activityId)) {
+    throw notFoundError();
   }
 
-  async function checkSubscription(userId: number, activityId: number) {
-    await activitieService.confirmationStage(Number(userId));
+  const subscription = await activiteRepository.checkSub(userId, activityId);
 
-    if (Number.isNaN(activityId)) {
-      throw notFoundError();
-    }
+  return subscription;
+}
 
-    const subscription = await activiteRepository.checkSub(userId, activityId);
+const activitieService = {
+  confirmationStage,
+  getActivitiesByDay,
+  subscribeByIdActivity,
+  getAcitivitiesDates,
+  checkSubscription
+};
 
-    return subscription;
-  }
-
-  const activitieService = {
-    confirmationStage,
-    // getActivities,
-    getActivitiesByDay,
-    subscribeByIdActivity,
-    getAcitivitiesDates,
-    checkSubscription
-  };
-
-  export default activitieService;
+export default activitieService;

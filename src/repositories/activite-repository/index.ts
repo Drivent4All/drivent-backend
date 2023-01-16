@@ -13,24 +13,9 @@ async function getAcitivitiesDates(ticketTypeId: number) {
   });
 }
 
-// async function findActivities(ticketTypeId: number, userId: number) {
-//   return prisma.activite.findMany({
-//     where: {
-//       ticketTypeId
-//     },
-//     include: {
-//       BookingActivite: {
-//         where: {
-//           userId
-//         }
-//       }
-//     },
-//   });
-// }
-
 async function findActivitiesByDate(userId: number, date: Date) {
   const cacheDateActivities = await cache.get(String(date));
-
+console.log("cache", cacheDateActivities)
   if(cacheDateActivities) {
     return JSON.parse(cacheDateActivities);
   }
@@ -107,12 +92,6 @@ async function checkSub(userId: number, activityId: number) {
 }
 
 async function allSubscriptions(userId: number) {
-console.log("aqui no repository")
-  // const cachebookingActivities = await cache.get(String(userId));
-
-  // if(cachebookingActivities) {
-  //   return JSON.parse(cachebookingActivities);
-  // }
 
  const bookingActivities =  await prisma.bookingActivite.findMany({
     where: { 
@@ -122,13 +101,11 @@ console.log("aqui no repository")
       Activite:{}
       },
   });
-// cache.set(String(userId), JSON.stringify(bookingActivities));
 
 return bookingActivities
 }
 
 const activiteRepository = {
-  // findActivities,
   findActivitiesById,
   updateActivities,
   getAcitivitiesDates,
