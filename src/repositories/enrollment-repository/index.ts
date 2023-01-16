@@ -1,5 +1,7 @@
 import { prisma } from "@/config";
-import { Enrollment } from "@prisma/client";
+import { enrollmentError, noActivitiesError } from "@/errors";
+import { Enrollment, PrismaClient, PrismaPromise } from "@prisma/client";
+import { CreateAddressParams, UpdateAddressParams } from "../address-repository";
 
 async function findWithAddressByUserId(userId: number) {
   return prisma.enrollment.findFirst({
@@ -20,13 +22,32 @@ async function upsert(
   userId: number,
   createdEnrollment: CreateEnrollmentParams,
   updatedEnrollment: UpdateEnrollmentParams,
+  createdAddress: CreateAddressParams, updatedAddress: UpdateAddressParams
 ) {
-  return prisma.enrollment.upsert({
-    where: {
-      userId,
-    },
-    create: createdEnrollment,
-    update: updatedEnrollment,
+  return prisma.$transaction(async (tx: PrismaClient) => {
+    const newEnrollment = await tx.enrollment.upsert({
+      where: {
+        userId,
+      },
+      create: createdEnrollment,
+      update: updatedEnrollment,
+    });
+
+    if(!newEnrollment) {
+      throw enrollmentError();
+    }
+    await tx.address.upsert({
+      where: {
+        enrollmentId: newEnrollment.id,
+      },
+      create: {
+        ...createdAddress,
+        Enrollment: { connect: { id: newEnrollment.id } },
+      },
+      update: updatedAddress,
+    });
+
+    return newEnrollment;
   });
 }
 

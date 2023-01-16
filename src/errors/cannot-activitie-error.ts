@@ -62,3 +62,9 @@ export function noActivitiesError(): ApplicationError {
     message: "Sorry, there are no activities listed for that day.",
   };
 }
+export function enrollmentError(): ApplicationError {
+  return {
+    name: "enrollmentError",
+    message: "Sorry, there is a enrollmentError.",
+  };
+}
