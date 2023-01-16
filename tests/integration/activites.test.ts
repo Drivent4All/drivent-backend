@@ -356,9 +356,12 @@ describe("POST /activities", () => {
       const activityTryingToBookedStartsAt = '2023-05-28T19:57:12.250Z'
       const activityTryingToBookedEndssAt = '2023-05-28T20:57:12.250Z'
       const activiteAlreadyBooked = await createActivitieByTime(ticketType.id,date, activityBookedStartsAt, activityBookedEndsAt);
+      const activite = await createActivitie(ticketType.id);
+      const activite2 = await createActivitie(ticketType.id);
       const activiteTryingToBooked = await createActivitieByTime(ticketType.id,date, activityTryingToBookedStartsAt, activityTryingToBookedEndssAt);
+      const booking1 = await createBookingActivity(activite.id, user.id);
+      const booking2 = await createBookingActivity(activite2.id, user.id);
       const booking = await createBookingActivity(activiteAlreadyBooked.id, user.id);
-
       const response = await server.post(`/activities/${activiteTryingToBooked.id}`).set("Authorization", `Bearer ${token}`);
 
       expect(response.status).toEqual(httpStatus.CONFLICT);
