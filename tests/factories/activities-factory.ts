@@ -54,10 +54,26 @@ export function findActivites(id: number) {
 }
 
 export function createBookingActivity(activiteId: number, userId: number) {
+  console.log("activityId no booking", activiteId)
   return prisma.bookingActivite.create({
     data: {
       userId,
       activiteId
     }
+  });
+}
+export function createActivitieByTime(ticketTypeId: number, date: string, startsAt: string, endsAt: string) {
+console.log("ta no factory")
+  return prisma.activite.create({
+    data: {
+      name: faker.name.findName(),
+      startsAt,
+      date,
+      endsAt,
+      place: faker.name.jobArea(),
+      capacity: faker.datatype.number({ min: 1 }),
+      ticketTypeId,
+    }
+
   });
 }

@@ -106,12 +106,34 @@ async function checkSub(userId: number, activityId: number) {
   });
 }
 
+async function allSubscriptions(userId: number) {
+console.log("aqui no repository")
+  // const cachebookingActivities = await cache.get(String(userId));
+
+  // if(cachebookingActivities) {
+  //   return JSON.parse(cachebookingActivities);
+  // }
+
+ const bookingActivities =  await prisma.bookingActivite.findMany({
+    where: { 
+      userId
+    },
+    include: {
+      Activite:{}
+      },
+  });
+// cache.set(String(userId), JSON.stringify(bookingActivities));
+
+return bookingActivities
+}
+
 const activiteRepository = {
   // findActivities,
   findActivitiesById,
   updateActivities,
   getAcitivitiesDates,
   findActivitiesByDate,
+  allSubscriptions,
   checkSub,
   checkSameStartTime
 };

@@ -22,7 +22,7 @@ import {
   createRoomWithHotelId,
   createBooking,
 } from "../factories";
-import { createActivitie, findActivites, createActivitieCapacityZero, createBookingActivity } from "../factories/activities-factory";
+import { createActivitie, findActivites, createActivitieCapacityZero, createBookingActivity, createActivitieByTime } from "../factories/activities-factory";
 import { cleanDb, generateValidToken } from "../helpers";
 
 beforeAll(async () => {
@@ -231,6 +231,7 @@ describe("GET /activities/:date", () => {
       // });
 
       const activite = await createActivitie(ticket.ticketTypeId);
+      console.log("vamos ver o date", activite.date)
 
       const activiteDate = activite.date;
 
@@ -360,6 +361,31 @@ describe("POST /activities", () => {
 
       expect(response.status).toEqual(httpStatus.UNAUTHORIZED);
     });
+    it("should respond with status 409 when the activite is sent has conflict time with an Activity already booked", async () => {
+      const user = await createUser();
+      const token = await generateValidToken(user);
+      const enrollment = await createEnrollmentWithAddress(user);
+      const ticketType = await createTicketTypeWithHotel();
+      const ticket = await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
+      const date = '2023-05-28T00:00:12.250Z'
+      const activityBookedStartsAt = '2023-05-28T18:57:12.250Z'
+      const activityBookedEndsAt = '2023-05-28T22:57:12.250Z'
+      const activityTryingToBookedStartsAt = '2023-05-28T19:57:12.250Z'
+      const activityTryingToBookedEndssAt = '2023-05-28T20:57:12.250Z'
+      const activiteAlreadyBooked = await createActivitieByTime(ticketType.id,date, activityBookedStartsAt, activityBookedEndsAt);
+      const activiteTryingToBooked = await createActivitieByTime(ticketType.id,date, activityTryingToBookedStartsAt, activityTryingToBookedEndssAt);
+      const booking = await createBookingActivity(activiteAlreadyBooked.id, user.id);
+      console.log("ta aqui o booking", booking)
+
+      const response = await server.post(`/activities/${activiteTryingToBooked.id}`).set("Authorization", `Bearer ${token}`);
+
+      expect(response.status).toEqual(httpStatus.CONFLICT);
+      // expect(response.body).toEqual({
+      //   id: expect.any(Number),
+      //   userId: expect.any(Number),
+      //   activiteId: expect.any(Number),
+      //   createdAt: expect.any(String)
+      });
     it("should respond with status 200 when the activite is booked", async () => {
       const user = await createUser();
       const token = await generateValidToken(user);
@@ -464,6 +490,7 @@ describe("GET /user/:activityId", () => {
 
         expect(response.status).toEqual(httpStatus.PAYMENT_REQUIRED);
       });
+
       it("should respond with status 200 when the activite is booked", async () => {
         const user = await createUser();
         const token = await generateValidToken(user);

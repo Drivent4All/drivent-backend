@@ -136,7 +136,9 @@ export async function subscribeToAnActivity(req: AuthenticatedRequest, res: Resp
     if (error.name === "CannotActiviteOverCapacityError") {
       return res.status(httpStatus.UNAUTHORIZED).send(error.message);
     }
-
+    if (error.name === "ConflictActivitiesError") {
+      return res.status(httpStatus.CONFLICT).send(error.message);
+    }
     return res.sendStatus(httpStatus.BAD_REQUEST);
   }
 }
