@@ -22,8 +22,15 @@ import {
   createRoomWithHotelId,
   createBooking,
 } from "../factories";
-import { createActivitie, findActivites, createActivitieCapacityZero, createBookingActivity } from "../factories/activities-factory";
+import { createActivitie, findActivites, createActivitieCapacityZero, createBookingActivity, createActivitieByTime } from "../factories/activities-factory";
 import { cleanDb, generateValidToken } from "../helpers";
+
+
+import { createClient } from "redis";
+
+const cache = createClient();
+cache.connect();
+
 
 beforeAll(async () => {
   await init();
@@ -75,22 +82,6 @@ describe("when token is valid", () => {
     const response = await server.get("/activities").set("Authorization", `Bearer ${token}`);
     expect(response.status).toEqual(httpStatus.PAYMENT_REQUIRED);
   });
-
-  // it("should respond with status 401 when user has not a booking ", async () => {
-  //   const user = await createUser();
-  //   const token = await generateValidToken(user);
-  //   const enrollment = await createEnrollmentWithAddress(user);
-  //   const ticketType = await createTicketTypeWithHotel();
-  //   const ticket = await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
-  //   const payment = await createPayment(ticket.id, ticketType.price);
-
-  //   const hotel = await createHotel();
-  //   const room = await createRoomWithHotelId(hotel.id);
-
-  //   const response = await server.get("/activities").set("Authorization", `Bearer ${token}`);
-
-  //   expect(response.status).toEqual(httpStatus.UNAUTHORIZED);
-  // });
 
   it("should respond with status 200 when user has activites ", async () => {
     const user = await createUser();
@@ -197,11 +188,6 @@ describe("GET /activities/:date", () => {
       const hotel = await createHotel();
       const room = await createRoomWithHotelId(hotel.id);
 
-      // const act = await createBooking({
-      //   userId: user.id,
-      //   roomId: room.id,
-      // });
-
       const activite = await createActivitie(ticket.ticketTypeId);
 
       const activiteDate = activite.date;
@@ -215,20 +201,17 @@ describe("GET /activities/:date", () => {
     });
 
     it("should respond with status 200 when user has activites ", async () => {
+      console.log("entrou no teste has activity")
       const user = await createUser();
       const token = await generateValidToken(user);
+      console.log("1")
       const enrollment = await createEnrollmentWithAddress(user);
       const ticketType = await createTicketTypeWithHotel();
+      console.log("2")
       const ticket = await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
       const payment = await createPayment(ticket.id, ticketType.price);
-
       const hotel = await createHotel();
       const room = await createRoomWithHotelId(hotel.id);
-
-      // const act = await createBooking({
-      //   userId: user.id,
-      //   roomId: room.id,
-      // });
 
       const activite = await createActivitie(ticket.ticketTypeId);
 
@@ -237,9 +220,9 @@ describe("GET /activities/:date", () => {
       const date = dayjs(activiteDate).add(1, "day").format("YYYY-MM-DD");
 
       const params = date;
-
+console.log("3")
       const response = await server.get(`/activities/${params}`).set("Authorization", `Bearer ${token}`);
-
+      console.log("leu teste has activity")
       expect(response.status).toEqual(httpStatus.OK);
       expect(response.body).toEqual([{
         id: expect.any(Number),
@@ -258,6 +241,7 @@ describe("GET /activities/:date", () => {
 });
 
 describe("POST /activities", () => {
+
   it("should respond with status 401 if no token is given", async () => {
     const id = faker.datatype.number();
     const response = await server.post(`/activities/${id}`);
@@ -360,14 +344,35 @@ describe("POST /activities", () => {
 
       expect(response.status).toEqual(httpStatus.UNAUTHORIZED);
     });
+    it("should respond with status 409 when the activite is sent has conflict time with an Activity already booked", async () => {
+      const user = await createUser();
+      const token = await generateValidToken(user);
+      const enrollment = await createEnrollmentWithAddress(user);
+      const ticketType = await createTicketTypeWithHotel();
+      const ticket = await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
+      const date = '2023-05-28T00:00:12.250Z'
+      const activityBookedStartsAt = '2023-05-28T18:57:12.250Z'
+      const activityBookedEndsAt = '2023-05-28T22:57:12.250Z'
+      const activityTryingToBookedStartsAt = '2023-05-28T19:57:12.250Z'
+      const activityTryingToBookedEndssAt = '2023-05-28T20:57:12.250Z'
+      const activiteAlreadyBooked = await createActivitieByTime(ticketType.id,date, activityBookedStartsAt, activityBookedEndsAt);
+      const activiteTryingToBooked = await createActivitieByTime(ticketType.id,date, activityTryingToBookedStartsAt, activityTryingToBookedEndssAt);
+      const booking = await createBookingActivity(activiteAlreadyBooked.id, user.id);
+
+      const response = await server.post(`/activities/${activiteTryingToBooked.id}`).set("Authorization", `Bearer ${token}`);
+
+      expect(response.status).toEqual(httpStatus.CONFLICT);
+
+      });
     it("should respond with status 200 when the activite is booked", async () => {
+
       const user = await createUser();
       const token = await generateValidToken(user);
       const enrollment = await createEnrollmentWithAddress(user);
       const ticketType = await createTicketTypeWithHotel();
       const ticket = await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
       const activite = await createActivitie(ticketType.id);
-
+console.log("post sucesso")
       const response = await server.post(`/activities/${activite.id}`).set("Authorization", `Bearer ${token}`);
 
       expect(response.status).toEqual(httpStatus.OK);
@@ -464,6 +469,7 @@ describe("GET /user/:activityId", () => {
 
         expect(response.status).toEqual(httpStatus.PAYMENT_REQUIRED);
       });
+
       it("should respond with status 200 when the activite is booked", async () => {
         const user = await createUser();
         const token = await generateValidToken(user);
