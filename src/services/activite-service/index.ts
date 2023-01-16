@@ -10,6 +10,7 @@ import { error } from "console";
 import dayjs from "dayjs";
 import httpStatus from "http-status";
 import bookingActiviteRepository from "@/repositories/bookingActivite-repository";
+import { subscribe } from "superagent";
 
 async function confirmationStage(userId: number) {
   const enrollment = await enrollmentRepository.findWithAddressByUserId(userId);
@@ -74,18 +75,19 @@ async function subscribeByIdActivity(userId: number, id: number) {
   const alreadySubscibed = await activiteRepository.allSubscriptions(userId)
 
   if (alreadySubscibed.length !== 0) {
-
-    for (let i = 0; i < alreadySubscibed.length; i++) {
+console.log("length", alreadySubscibed.length)
+    for(let i = 0; i < alreadySubscibed.length +1; i++) {
+console.log(i)
 
       const activitySubscribed = alreadySubscibed[i].Activite
-
+console.log(alreadySubscibed)
+console.log(activitySubscribed)
       const isActivitySubStartsBeforeActivityStartsSelected = dayjs(activitySubscribed.startsAt).isBefore(activiteSelected.startsAt)
       const isActivitySubSEndsAfterActivityStartsSelected = dayjs(activitySubscribed.endsAt).isAfter(activiteSelected.startsAt)
 
       if (isActivitySubStartsBeforeActivityStartsSelected && isActivitySubSEndsAfterActivityStartsSelected) {
         throw conflictActivitiesError()
       }
-
       const isActivitySelectedtartsBeforeActivityStartsSub = dayjs(activiteSelected.startsAt).isBefore(activitySubscribed.startsAt)
       const isActivitySelectedSEndsAfterActivityStartsSub = dayjs(activiteSelected.endsAt).isAfter(activitySubscribed.startsAt)
 
@@ -98,6 +100,7 @@ async function subscribeByIdActivity(userId: number, id: number) {
       if (isActivitySelectedtartsTheSameActivityStartsSub) {
         throw conflictActivitiesError()
       }
+
     }
 
   }
