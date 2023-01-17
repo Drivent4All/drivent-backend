@@ -15,7 +15,7 @@ async function getAcitivitiesDates(ticketTypeId: number) {
 
 async function findActivitiesByDate(userId: number, date: Date) {
   const cacheDateActivities = await cache.get(String(date));
-console.log("cache", cacheDateActivities)
+      
   if(cacheDateActivities) {
     return JSON.parse(cacheDateActivities);
   }
@@ -92,17 +92,16 @@ async function checkSub(userId: number, activityId: number) {
 }
 
 async function allSubscriptions(userId: number) {
-
- const bookingActivities =  await prisma.bookingActivite.findMany({
+  const bookingActivities =  await prisma.bookingActivite.findMany({
     where: { 
       userId
     },
     include: {
-      Activite:{}
-      },
+      Activite: {}
+    },
   });
 
-return bookingActivities
+  return bookingActivities;
 }
 
 const activiteRepository = {
