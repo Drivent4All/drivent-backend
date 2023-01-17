@@ -25,19 +25,19 @@ import {
 import { createActivitie, findActivites, createActivitieCapacityZero, createBookingActivity, createActivitieByTime } from "../factories/activities-factory";
 import { cleanDb, generateValidToken } from "../helpers";
 
-
 import { createClient } from "redis";
 
 const cache = createClient();
 cache.connect();
 
-
 beforeAll(async () => {
   await init();
+  await cache.flushAll();
 });
 
 beforeEach(async () => {
   await cleanDb();
+  await cache.flushAll();
 });
 
 const server = supertest(app);
@@ -201,13 +201,13 @@ describe("GET /activities/:date", () => {
     });
 
     it("should respond with status 200 when user has activites ", async () => {
-      console.log("entrou no teste has activity")
+      console.log("entrou no teste has activity");
       const user = await createUser();
       const token = await generateValidToken(user);
-      console.log("1")
+      console.log("1");
       const enrollment = await createEnrollmentWithAddress(user);
       const ticketType = await createTicketTypeWithHotel();
-      console.log("2")
+      console.log("2");
       const ticket = await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
       const payment = await createPayment(ticket.id, ticketType.price);
       const hotel = await createHotel();
@@ -220,9 +220,9 @@ describe("GET /activities/:date", () => {
       const date = dayjs(activiteDate).add(1, "day").format("YYYY-MM-DD");
 
       const params = date;
-console.log("3")
+      console.log("3");
       const response = await server.get(`/activities/${params}`).set("Authorization", `Bearer ${token}`);
-      console.log("leu teste has activity")
+      console.log("leu teste has activity");
       expect(response.status).toEqual(httpStatus.OK);
       expect(response.body).toEqual([{
         id: expect.any(Number),
@@ -241,7 +241,6 @@ console.log("3")
 });
 
 describe("POST /activities", () => {
-
   it("should respond with status 401 if no token is given", async () => {
     const id = faker.datatype.number();
     const response = await server.post(`/activities/${id}`);
@@ -350,32 +349,26 @@ describe("POST /activities", () => {
       const enrollment = await createEnrollmentWithAddress(user);
       const ticketType = await createTicketTypeWithHotel();
       const ticket = await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
-      const date = '2023-05-28T00:00:12.250Z'
-      const activityBookedStartsAt = '2023-05-28T18:57:12.250Z'
-      const activityBookedEndsAt = '2023-05-28T22:57:12.250Z'
-      const activityTryingToBookedStartsAt = '2023-05-28T19:57:12.250Z'
-      const activityTryingToBookedEndssAt = '2023-05-28T20:57:12.250Z'
-      const activiteAlreadyBooked = await createActivitieByTime(ticketType.id,date, activityBookedStartsAt, activityBookedEndsAt);
-      const activite = await createActivitie(ticketType.id);
-      const activite2 = await createActivitie(ticketType.id);
-      const activiteTryingToBooked = await createActivitieByTime(ticketType.id,date, activityTryingToBookedStartsAt, activityTryingToBookedEndssAt);
-      const booking1 = await createBookingActivity(activite.id, user.id);
-      const booking2 = await createBookingActivity(activite2.id, user.id);
+      const date = "2023-05-28T00:00:12.250Z";
+      const activityBookedStartsAt = "09h00";
+      const activityBookedEndsAt = "10h00";
+      const activityTryingToBookedStartsAt = "09h00";
+      const activityTryingToBookedEndssAt = "10h00";
+      const activiteAlreadyBooked = await createActivitieByTime(ticketType.id, date, activityBookedStartsAt, activityBookedEndsAt);
+      const activiteTryingToBooked = await createActivitieByTime(ticketType.id, date, activityTryingToBookedStartsAt, activityTryingToBookedEndssAt);
       const booking = await createBookingActivity(activiteAlreadyBooked.id, user.id);
       const response = await server.post(`/activities/${activiteTryingToBooked.id}`).set("Authorization", `Bearer ${token}`);
 
       expect(response.status).toEqual(httpStatus.CONFLICT);
-
-      });
+    });
     it("should respond with status 200 when the activite is booked", async () => {
-
       const user = await createUser();
       const token = await generateValidToken(user);
       const enrollment = await createEnrollmentWithAddress(user);
       const ticketType = await createTicketTypeWithHotel();
       const ticket = await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
       const activite = await createActivitie(ticketType.id);
-console.log("post sucesso")
+      console.log("post sucesso");
       const response = await server.post(`/activities/${activite.id}`).set("Authorization", `Bearer ${token}`);
 
       expect(response.status).toEqual(httpStatus.OK);

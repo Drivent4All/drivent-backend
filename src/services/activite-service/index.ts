@@ -1,16 +1,9 @@
 import { cannotActiviteTicketError, cannotActiviteDoesntMatchError, cannotActiviteOverCapacityError, conflictActivitiesError, cannotActiviteDateError, cannotActiviteBookingError, cannotActivitePaymemtError, cannotActiviteOnlineEventError, cannotActiviteEnrrolmentError, noActivitiesError, notFoundError } from "@/errors";
-import roomRepository from "@/repositories/room-repository";
-import bookingRepository from "@/repositories/booking-repository";
 import enrollmentRepository from "@/repositories/enrollment-repository";
 import tikectRepository from "@/repositories/ticket-repository";
 import activiteRepository from "@/repositories/activite-repository";
-import { number, string } from "joi";
-import { Activite, BookingActivite } from "@prisma/client";
-import { error } from "console";
 import dayjs from "dayjs";
-import httpStatus from "http-status";
 import bookingActiviteRepository from "@/repositories/bookingActivite-repository";
-import { subscribe } from "superagent";
 
 async function confirmationStage(userId: number) {
   const enrollment = await enrollmentRepository.findWithAddressByUserId(userId);
@@ -53,7 +46,7 @@ async function getActivitiesByDay(userId: number, date: string) {
   if (activities.length === 0) {
     throw noActivitiesError();
   }
-console.log("activities", activities)
+
   return activities;
 }
 
@@ -72,37 +65,35 @@ async function subscribeByIdActivity(userId: number, id: number) {
   if (activiteSelected.capacity === 0) {
     throw cannotActiviteOverCapacityError();
   }
-  const alreadySubscibed = await activiteRepository.allSubscriptions(userId)
+  const alreadySubscibed = await activiteRepository.allSubscriptions(userId);
 
   if (alreadySubscibed.length !== 0) {
-console.log("length", alreadySubscibed.length)
-    for(let i = 0; i < alreadySubscibed.length +1; i++) {
-console.log(i)
+    for(let i = 0; i < alreadySubscibed.length; i++) {
+      const activitySubscribed = alreadySubscibed[i].Activite;
 
-      const activitySubscribed = alreadySubscibed[i].Activite
-console.log(alreadySubscibed)
-console.log(activitySubscribed)
-      const isActivitySubStartsBeforeActivityStartsSelected = dayjs(activitySubscribed.startsAt).isBefore(activiteSelected.startsAt)
-      const isActivitySubSEndsAfterActivityStartsSelected = dayjs(activitySubscribed.endsAt).isAfter(activiteSelected.startsAt)
+      if(!dayjs(activitySubscribed.date).isSame(dayjs(activiteSelected.date))) {
+        break;
+      }
+
+      const isActivitySubStartsBeforeActivityStartsSelected = dayjs((activitySubscribed.startsAt).replace("h00", "")).isBefore(dayjs((activiteSelected.startsAt).replace("h00", "")));
+      const isActivitySubSEndsAfterActivityStartsSelected = dayjs((activitySubscribed.endsAt).replace("h00", "")).isAfter(dayjs((activiteSelected.startsAt).replace("h00", "")));
 
       if (isActivitySubStartsBeforeActivityStartsSelected && isActivitySubSEndsAfterActivityStartsSelected) {
-        throw conflictActivitiesError()
+        throw conflictActivitiesError();
       }
-      const isActivitySelectedtartsBeforeActivityStartsSub = dayjs(activiteSelected.startsAt).isBefore(activitySubscribed.startsAt)
-      const isActivitySelectedSEndsAfterActivityStartsSub = dayjs(activiteSelected.endsAt).isAfter(activitySubscribed.startsAt)
+      const isActivitySelectedtartsBeforeActivityStartsSub = dayjs((activiteSelected.startsAt).replace("h00", "")).isBefore(dayjs((activitySubscribed.startsAt).replace("h00", "")));
+      const isActivitySelectedSEndsAfterActivityStartsSub = dayjs((activiteSelected.endsAt).replace("h00", "")).isAfter(dayjs((activitySubscribed.startsAt).replace("h00", "")));
 
       if (isActivitySelectedtartsBeforeActivityStartsSub && isActivitySelectedSEndsAfterActivityStartsSub) {
-        throw conflictActivitiesError()
+        throw conflictActivitiesError();
       }
 
-      const isActivitySelectedtartsTheSameActivityStartsSub = dayjs(activiteSelected.startsAt).isSame(activitySubscribed.startsAt)
+      const isActivitySelectedtartsTheSameActivityStartsSub = dayjs((activiteSelected.startsAt).replace("h00", "")).isSame(dayjs((activitySubscribed.startsAt).replace("h00", "")));
 
       if (isActivitySelectedtartsTheSameActivityStartsSub) {
-        throw conflictActivitiesError()
+        throw conflictActivitiesError();
       }
-
     }
-
   }
   await activiteRepository.updateActivities(id, activiteSelected.capacity);
 
